@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GxP Agent — AI para Ingeniería Farmacéutica</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0B0F1A;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1A2332;
+    --bg-chat-user: #1E3A5F;
+    --bg-chat-ai: #151D2B;
+    --accent: #38BDF8;
+    --accent-glow: rgba(56, 189, 248, 0.15);
+    --accent-dim: #1E6B8F;
+    --text-primary: #E8ECF1;
+    --text-secondary: #8899AA;
+    --text-muted: #556677;
+    --border: #1E2D3D;
+    --success: #34D399;
+    --warning: #FBBF24;
+    --error: #F87171;
+    --pharma-teal: #2DD4BF;
+    --pharma-blue: #38BDF8;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--bg-primary);
+    letter-spacing: -0.5px;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .logo-text h1 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+
+  .logo-text span {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    font-size: 12px;
+    color: var(--success);
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ===== SETUP SCREEN ===== */
+  .setup-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+
+  .setup-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .setup-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .setup-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .setup-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .setup-card input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .setup-card input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .setup-card input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .setup-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--bg-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .setup-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .setup-hint {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(56, 189, 248, 0.06);
+    border: 1px solid rgba(56, 189, 248, 0.12);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .setup-hint code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  /* ===== CHAT LAYOUT ===== */
+  .chat-container {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-container.active {
+    display: flex;
+  }
+
+  /* ===== MESSAGES ===== */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-behavior: smooth;
+  }
+
+  .messages::-webkit-scrollbar { width: 6px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    max-width: 85%;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .message.ai .message-avatar {
+    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+    color: var(--bg-primary);
+  }
+
+  .message.user .message-avatar {
+    background: var(--bg-chat-user);
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+  }
+
+  .message-content {
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .message.ai .message-content {
+    background: var(--bg-chat-ai);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .message.user .message-content {
+    background: var(--bg-chat-user);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    color: var(--text-primary);
+  }
+
+  .message-content p { margin-bottom: 8px; }
+  .message-content p:last-child { margin-bottom: 0; }
+  .message-content strong { color: var(--pharma-teal); font-weight: 600; }
+  .message-content code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .message-content ul, .message-content ol {
+    margin: 8px 0;
+    padding-left: 20px;
+  }
+  .message-content li { margin-bottom: 4px; }
+  .message-content pre {
+    background: var(--bg-primary);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    margin: 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    border: 1px solid var(--border);
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .typing-indicator span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typing 1.4s ease-in-out infinite;
+  }
+
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 100% { opacity: 0.3; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ===== INPUT AREA ===== */
+  .input-area {
+    padding: 16px 24px 20px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .input-wrapper textarea {
+    flex: 1;
+    padding: 12px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    outline: none;
+    min-height: 46px;
+    max-height: 150px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrapper textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .input-wrapper textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  .send-btn {
+    width: 46px;
+    height: 46px;
+    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, opacity 0.15s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .send-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--bg-primary);
+  }
+
+  /* ===== QUICK ACTIONS ===== */
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 12px;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .quick-btn {
+    padding: 7px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .quick-btn:hover {
+    background: var(--accent-glow);
+    border-color: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  /* ===== WELCOME ===== */
+  .welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+
+  .welcome-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--bg-primary);
+    margin-bottom: 20px;
+    box-shadow: 0 0 40px var(--accent-glow);
+  }
+
+  .welcome h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--text-primary), var(--pharma-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .welcome p {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+  }
+
+  .welcome-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    max-width: 680px;
+    width: 100%;
+  }
+
+  .welcome-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .welcome-card:hover {
+    border-color: var(--accent-dim);
+    background: rgba(56, 189, 248, 0.05);
+    transform: translateY(-2px);
+  }
+
+  .welcome-card .card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .welcome-card h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .welcome-card p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 0;
+    line-height: 1.4;
+  }
+
+  /* ===== ERROR ===== */
+  .error-msg {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--error);
+    margin-top: 12px;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 640px) {
+    .header { padding: 10px 16px; }
+    .messages { padding: 16px; }
+    .input-area { padding: 12px 16px 16px; }
+    .quick-actions { padding: 0 16px 8px; }
+    .message { max-width: 95%; }
+    .welcome-cards { grid-template-columns: 1fr; }
+    .setup-card { padding: 24px; margin: 16px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-mark">GxP</div>
+      <div class="logo-text">
+        <h1>GxP Agent</h1>
+        <span>Pharma Engineering AI</span>
+      </div>
+    </div>
+    <div class="status-pill" id="statusPill" style="display:none;">
+      <div class="status-dot"></div>
+      Conectado
+    </div>
+  </div>
+
+  <!-- SETUP SCREEN -->
+  <div class="setup-screen" id="setupScreen">
+    <div class="setup-card">
+      <h2>Configura tu GxP Agent</h2>
+      <p>Necesitas tu API Key de Anthropic para conectar el agente. La clave se guarda solo en tu navegador — nunca sale de tu equipo.</p>
+      <label for="apiKeyInput">API Key de Anthropic</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+      <div class="error-msg" id="setupError"></div>
+      <button class="setup-btn" id="setupBtn" onclick="connectAgent()">Conectar Agente</button>
+      <div class="setup-hint">
+        <strong>¿No tienes API Key?</strong><br>
+        Ve a <code>console.anthropic.com</code> → Sign up → Billing → Añade $5 → API Keys → Create Key
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT CONTAINER -->
+  <div class="chat-container" id="chatContainer">
+    
+    <!-- WELCOME (shown when no messages) -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-icon">GxP</div>
+      <h2>¿En qué puedo ayudarte?</h2>
+      <p>Soy tu agente de IA especializado en ingeniería farmacéutica: salas limpias, HVAC, GMP, ISO 14644, EU Annex 1, agua purificada y más.</p>
+      <div class="welcome-cards">
+        <div class="welcome-card" onclick="sendQuickPrompt('clasificacion')">
+          <div class="card-icon">🏗️</div>
+          <h4>Clasificación de salas</h4>
+          <p>Verificar clasificaciones ISO 14644 y EU GMP Annex 1</p>
+        </div>
+        <div class="welcome-card" onclick="sendQuickPrompt('hvac')">
+          <div class="card-icon">💨</div>
+          <h4>Diseño HVAC</h4>
+          <p>Renovaciones de aire, cascada de presiones, UTA</p>
+        </div>
+        <div class="welcome-card" onclick="sendQuickPrompt('agua')">
+          <div class="card-icon">💧</div>
+          <h4>Agua purificada</h4>
+          <p>Sistemas PW/WFI, diseño de loops, sanitización</p>
+        </div>
+        <div class="welcome-card" onclick="sendQuickPrompt('gmp')">
+          <div class="card-icon">📋</div>
+          <h4>Revisión GMP</h4>
+          <p>Verificar cumplimiento normativo de mi diseño</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="messages" id="messagesContainer" style="display:none;"></div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions" id="quickActions">
+      <button class="quick-btn" onclick="sendQuickPrompt('presiones')">Cascada de presiones</button>
+      <button class="quick-btn" onclick="sendQuickPrompt('renovaciones')">Renovaciones de aire</button>
+      <button class="quick-btn" onclick="sendQuickPrompt('acabados')">Acabados sala limpia</button>
+      <button class="quick-btn" onclick="sendQuickPrompt('tabla')">Generar tabla de salas</button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea id="userInput" placeholder="Pregunta sobre ingeniería farmacéutica..." rows="1" onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ============================================
+// STATE
+// ============================================
+let API_KEY = '';
+let conversationHistory = [];
+let isStreaming = false;
+
+const SYSTEM_PROMPT = `Eres GxP Agent, un asistente de IA experto en ingeniería farmacéutica. Tu conocimiento abarca:
+
+NORMATIVAS Y ESTÁNDARES:
+- ISO 14644 (clasificación de salas limpias, monitoreo de partículas)
+- EU GMP Annex 1 (fabricación de medicamentos estériles, 2022 revisión)
+- FDA 21 CFR Parts 210, 211 (cGMP para productos farmacéuticos)
+- ISPE Baseline Guides (Vol. 1-7)
+- WHO TRS (Technical Report Series) para GMP
+- ICH Q7 (API), ICH Q9 (gestión de riesgos), ICH Q10 (sistema de calidad farmacéutica)
+- USP <797>, <800> (preparación estéril, medicamentos peligrosos)
+- ASHRAE 170 (ventilación en instalaciones de salud)
+
+ÁREAS DE ESPECIALIDAD:
+1. SALAS LIMPIAS: Clasificación ISO/GMP (Grado A/B/C/D), diseño de layouts, flujos de personal y material, esclusas, pass-throughs, vestidores, cascadas de presión (positiva para estériles, negativa para contención)
+2. HVAC FARMACÉUTICO: Cálculo de renovaciones de aire (ACH), dimensionamiento de UTAs, filtros HEPA/ULPA, control de temperatura y humedad, calificación de sistemas, balances de aire
+3. AGUA PURIFICADA: Diseño de sistemas PW (Purified Water) y WFI (Water for Injection), loops de distribución, puntos de uso, sanitización (ozono, agua caliente, vapor), storage tanks, TOC y conductividad
+4. ACABADOS Y MATERIALES: Especificaciones de suelos (epoxi, vinilo, poliuretano), paredes (panel sandwich, acero inoxidable, HPL), techos (walkable vs non-walkable), curvas sanitarias (coving), rugosidad superficial (Ra ≤ 0.8 μm para Grado A/B)
+5. UTILIDADES: Vapor limpio, gases comprimidos (nitrógeno, aire comprimido farmacéutico), vacío, sistemas de contención (RABS, isolators)
+6. CUALIFICACIÓN: DQ, IQ, OQ, PQ, protocolos de validación, mapeo térmico, conteos de partículas, recovery tests, integridad de filtros HEPA
+
+FORMATO DE RESPUESTA:
+- Sé directo y técnico, pero claro
+- Cuando cites normativas, referencia la sección específica (ej: "EU GMP Annex 1, §4.3")
+- Si el usuario pregunta algo que requiere datos de su proyecto, pídelos específicamente
+- Usa tablas markdown cuando sea útil (clasificaciones, parámetros)
+- Si detectas un posible error de diseño o incumplimiento normativo, alerta claramente
+- Puedes responder en español o inglés según el idioma del usuario
+
+IMPORTANTE: Eres un agente de ingeniería, no un chatbot genérico. Da respuestas de nivel consultor senior. Si no estás seguro de algo, dilo — la seguridad del paciente depende de la precisión de tus respuestas.`;
+
+const QUICK_PROMPTS = {
+  clasificacion: '¿Cuáles son las clasificaciones de salas limpias según ISO 14644-1 y su equivalencia con los grados EU GMP (A, B, C, D)? Incluye los límites de partículas para cada clase.',
+  hvac: 'Necesito diseñar el sistema HVAC para una zona de fabricación de inyectables estériles. ¿Cuáles son los parámetros clave que debo considerar (renovaciones de aire, presiones, temperatura, humedad)?',
+  agua: 'Explícame las diferencias clave entre un sistema de Agua Purificada (PW) y Agua para Inyección (WFI) según farmacopea. ¿Cuáles son los parámetros críticos de cada uno?',
+  gmp: 'Voy a diseñar una planta de sólidos orales. ¿Cuáles son los requisitos GMP principales que debo considerar en el layout, flujos, clasificación de zonas y HVAC?',
+  presiones: 'Explícame cómo diseñar la cascada de presiones en una zona estéril. ¿Cuál es el diferencial mínimo entre zonas según EU GMP Annex 1?',
+  renovaciones: '¿Cuántas renovaciones de aire por hora (ACH) se requieren para cada grado de sala limpia (A, B, C, D) según las guías EU GMP e ISPE?',
+  acabados: '¿Cuáles son las especificaciones de acabados (suelos, paredes, techos) para una sala limpia Grado B? ¿Qué rugosidad superficial se exige?',
+  tabla: 'Genera una tabla resumen con las clasificaciones de salas limpias que incluya: Grado EU GMP, Clase ISO equivalente, límites de partículas (≥0.5μm y ≥5μm) en reposo y en operación, y renovaciones de aire típicas.'
+};
+
+// ============================================
+// SETUP
+// ============================================
+function connectAgent() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const errorEl = document.getElementById('setupError');
+  
+  if (!key) {
+    errorEl.textContent = 'Introduce tu API Key';
+    errorEl.classList.add('visible');
+    return;
+  }
+  
+  if (!key.startsWith('sk-ant-')) {
+    errorEl.textContent = 'La API Key debe empezar por sk-ant-...';
+    errorEl.classList.add('visible');
+    return;
+  }
+
+  API_KEY = key;
+  localStorage.setItem('gxp_agent_key', key);
+  
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('chatContainer').classList.add('active');
+  document.getElementById('statusPill').style.display = 'flex';
+  document.getElementById('userInput').focus();
+}
+
+// Check for saved key on load
+window.addEventListener('DOMContentLoaded', () => {
+  const savedKey = localStorage.getItem('gxp_agent_key');
+  if (savedKey) {
+    API_KEY = savedKey;
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('chatContainer').classList.add('active');
+    document.getElementById('statusPill').style.display = 'flex';
+  }
+});
+
+// ============================================
+// CHAT
+// ============================================
+function sendQuickPrompt(id) {
+  const prompt = QUICK_PROMPTS[id];
+  if (prompt) {
+    document.getElementById('userInput').value = prompt;
+    sendMessage();
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text || isStreaming) return;
+
+  // Hide welcome, show messages
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('messagesContainer').style.display = 'flex';
+
+  // Add user message
+  addMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  
+  // Add to history
+  conversationHistory.push({ role: 'user', content: text });
+
+  // Show typing
+  const typingEl = addTypingIndicator();
+  
+  isStreaming = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Error ${response.status}`);
+    }
+
+    const data = await response.json();
+    const assistantText = data.content
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('\n');
+
+    // Remove typing, add response
+    typingEl.remove();
+    addMessage('ai', assistantText);
+    
+    conversationHistory.push({ role: 'assistant', content: assistantText });
+
+  } catch (error) {
+    typingEl.remove();
+    let errorMsg = error.message;
+    if (errorMsg.includes('401') || errorMsg.includes('auth')) {
+      errorMsg = 'API Key inválida. Revisa tu clave en console.anthropic.com';
+      localStorage.removeItem('gxp_agent_key');
+    }
+    addMessage('ai', `⚠️ **Error:** ${errorMsg}`);
+  } finally {
+    isStreaming = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('userInput').focus();
+  }
+}
+
+function addMessage(role, content) {
+  const container = document.getElementById('messagesContainer');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  
+  const avatar = document.createElement('div');
+  avatar.className = 'message-avatar';
+  avatar.textContent = role === 'ai' ? 'GxP' : 'Tú';
+  
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+  contentDiv.innerHTML = parseMarkdown(content);
+  
+  div.appendChild(avatar);
+  div.appendChild(contentDiv);
+  container.appendChild(div);
+  
+  container.scrollTop = container.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const container = document.getElementById('messagesContainer');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.innerHTML = `
+    <div class="message-avatar">GxP</div>
+    <div class="message-content">
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+// ============================================
+// MARKDOWN PARSER (basic)
+// ============================================
+function parseMarkdown(text) {
+  let html = text
+    // Code blocks
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Headers
+    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    // Tables
+    .replace(/^\|(.+)\|$/gm, (match) => {
+      const cells = match.split('|').filter(c => c.trim());
+      if (cells.every(c => /^[\s-:]+$/.test(c))) return ''; // separator row
+      const tag = 'td';
+      return '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+    });
+  
+  // Wrap table rows
+  html = html.replace(/((<tr>.*<\/tr>\s*)+)/g, '<table>$1</table>');
+  
+  // Lists
+  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>');
+  
+  // Numbered lists
+  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  
+  // Paragraphs
+  html = html.split('\n\n').map(block => {
+    block = block.trim();
+    if (!block) return '';
+    if (block.startsWith('<')) return block;
+    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+  }).join('');
+  
+  return html;
+}
+
+// ============================================
+// UI HELPERS
+// ============================================
+function handleKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+}
+</script>
+
+</body>
+</html>

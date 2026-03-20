@@ -4,925 +4,823 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GxP Agent — AI para Ingeniería Farmacéutica</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="description" content="Agente de inteligencia artificial especializado en diseño de plantas farmacéuticas. Salas limpias, HVAC, GMP, ISO 14644, EU Annex 1.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-primary: #0B0F1A;
-    --bg-secondary: #111827;
-    --bg-tertiary: #1A2332;
-    --bg-chat-user: #1E3A5F;
-    --bg-chat-ai: #151D2B;
+    --bg-deep: #060A13;
+    --bg-primary: #0B1120;
+    --bg-card: #111B2E;
+    --bg-card-hover: #152238;
     --accent: #38BDF8;
-    --accent-glow: rgba(56, 189, 248, 0.15);
-    --accent-dim: #1E6B8F;
+    --accent-teal: #2DD4BF;
+    --accent-glow: rgba(56, 189, 248, 0.12);
+    --accent-teal-glow: rgba(45, 212, 191, 0.12);
+    --gradient-main: linear-gradient(135deg, #2DD4BF, #38BDF8);
+    --gradient-text: linear-gradient(135deg, #E8ECF1, #2DD4BF);
     --text-primary: #E8ECF1;
     --text-secondary: #8899AA;
     --text-muted: #556677;
-    --border: #1E2D3D;
+    --border: #1A2A3E;
+    --border-light: #243448;
     --success: #34D399;
-    --warning: #FBBF24;
-    --error: #F87171;
-    --pharma-teal: #2DD4BF;
-    --pharma-blue: #38BDF8;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    --radius: 16px;
+    --radius-sm: 10px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  
+
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg-primary);
+    background: var(--bg-deep);
     color: var(--text-primary);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    line-height: 1.6;
+    overflow-x: hidden;
   }
 
-  /* ===== HEADER ===== */
-  .header {
+  /* ===== UTILITY ===== */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .gradient-text {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===== BACKGROUND EFFECTS ===== */
+  .bg-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.07;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .bg-glow-1 {
+    top: -200px;
+    right: -200px;
+    background: var(--accent);
+  }
+
+  .bg-glow-2 {
+    bottom: -300px;
+    left: -200px;
+    background: var(--accent-teal);
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 16px 0;
+    background: rgba(6, 10, 19, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(26, 42, 62, 0.5);
+  }
+
+  nav .container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 24px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    z-index: 10;
   }
 
-  .header-left {
+  .nav-logo {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
+    text-decoration: none;
   }
 
-  .logo-mark {
-    width: 38px;
-    height: 38px;
-    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
-    border-radius: 10px;
+  .nav-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--gradient-main);
+    border-radius: 9px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 16px;
-    color: var(--bg-primary);
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--bg-deep);
     letter-spacing: -0.5px;
-    box-shadow: 0 0 20px var(--accent-glow);
   }
 
-  .logo-text {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .logo-text h1 {
-    font-size: 17px;
+  .nav-name {
     font-weight: 700;
+    font-size: 18px;
     color: var(--text-primary);
     letter-spacing: -0.3px;
-    line-height: 1.2;
   }
 
-  .logo-text span {
-    font-size: 11px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 500;
-  }
-
-  .status-pill {
+  .nav-links {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    background: rgba(52, 211, 153, 0.1);
-    border: 1px solid rgba(52, 211, 153, 0.2);
-    font-size: 12px;
-    color: var(--success);
-    font-weight: 500;
+    gap: 32px;
+    list-style: none;
   }
 
-  .status-dot {
+  .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text-primary); }
+
+  .nav-cta {
+    padding: 9px 20px;
+    background: var(--gradient-main);
+    border-radius: 8px;
+    color: var(--bg-deep) !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .nav-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 160px 0 100px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(45, 212, 191, 0.08);
+    border: 1px solid rgba(45, 212, 191, 0.15);
+    border-radius: 24px;
+    font-size: 13px;
+    color: var(--accent-teal);
+    font-weight: 500;
+    margin-bottom: 28px;
+    animation: fadeInDown 0.6s ease-out;
+  }
+
+  .hero-badge-dot {
     width: 6px;
     height: 6px;
+    background: var(--accent-teal);
     border-radius: 50%;
-    background: var(--success);
     animation: pulse 2s ease-in-out infinite;
   }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    50% { opacity: 0.3; }
   }
 
-  /* ===== SETUP SCREEN ===== */
-  .setup-screen {
-    flex: 1;
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 5.5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.7s ease-out 0.1s both;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+    animation: fadeInUp 0.7s ease-out 0.2s both;
+  }
+
+  .hero-actions {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px;
+    gap: 16px;
+    animation: fadeInUp 0.7s ease-out 0.3s both;
   }
 
-  .setup-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px;
-    max-width: 520px;
-    width: 100%;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .setup-card h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-  }
-
-  .setup-card p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 24px;
-    line-height: 1.6;
-  }
-
-  .setup-card label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  .setup-card input {
-    width: 100%;
-    padding: 12px 16px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .setup-card input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .setup-card input::placeholder {
-    color: var(--text-muted);
-  }
-
-  .setup-btn {
-    width: 100%;
-    padding: 13px;
-    margin-top: 20px;
-    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
+  .btn-primary {
+    padding: 14px 32px;
+    background: var(--gradient-main);
     border: none;
     border-radius: var(--radius-sm);
-    color: var(--bg-primary);
+    color: var(--bg-deep);
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
+    text-decoration: none;
     transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .setup-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px var(--accent-glow);
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--accent-glow);
   }
 
-  .setup-hint {
-    margin-top: 16px;
-    padding: 12px;
-    background: rgba(56, 189, 248, 0.06);
-    border: 1px solid rgba(56, 189, 248, 0.12);
+  .btn-secondary {
+    padding: 14px 32px;
+    background: transparent;
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-sm);
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.6;
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
   }
 
-  .setup-hint code {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--accent);
-    font-size: 11px;
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
   }
 
-  /* ===== CHAT LAYOUT ===== */
-  .chat-container {
-    flex: 1;
-    display: none;
-    flex-direction: column;
+  /* ===== DEMO PREVIEW ===== */
+  .demo-preview {
+    margin: 60px auto 0;
+    max-width: 800px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 80px var(--accent-glow);
+    animation: fadeInUp 0.8s ease-out 0.4s both;
   }
 
-  .chat-container.active {
+  .demo-topbar {
     display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid var(--border);
   }
 
-  /* ===== MESSAGES ===== */
-  .messages {
-    flex: 1;
-    overflow-y: auto;
+  .demo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.4;
+  }
+
+  .demo-dot:first-child { background: #F87171; opacity: 0.7; }
+  .demo-dot:nth-child(2) { background: #FBBF24; opacity: 0.7; }
+  .demo-dot:nth-child(3) { background: #34D399; opacity: 0.7; }
+
+  .demo-body {
     padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    scroll-behavior: smooth;
   }
 
-  .messages::-webkit-scrollbar { width: 6px; }
-  .messages::-webkit-scrollbar-track { background: transparent; }
-  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .message {
-    display: flex;
-    gap: 12px;
-    max-width: 85%;
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .message.user {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-  }
-
-  .message-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .message.ai .message-avatar {
-    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
-    color: var(--bg-primary);
-  }
-
-  .message.user .message-avatar {
-    background: var(--bg-chat-user);
-    color: var(--accent);
-    border: 1px solid var(--accent-dim);
-  }
-
-  .message-content {
-    padding: 14px 18px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    line-height: 1.7;
-  }
-
-  .message.ai .message-content {
-    background: var(--bg-chat-ai);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-  }
-
-  .message.user .message-content {
-    background: var(--bg-chat-user);
-    border: 1px solid rgba(56, 189, 248, 0.15);
-    color: var(--text-primary);
-  }
-
-  .message-content p { margin-bottom: 8px; }
-  .message-content p:last-child { margin-bottom: 0; }
-  .message-content strong { color: var(--pharma-teal); font-weight: 600; }
-  .message-content code {
-    font-family: 'JetBrains Mono', monospace;
-    background: rgba(56, 189, 248, 0.1);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--accent);
-  }
-  .message-content ul, .message-content ol {
-    margin: 8px 0;
-    padding-left: 20px;
-  }
-  .message-content li { margin-bottom: 4px; }
-  .message-content pre {
-    background: var(--bg-primary);
-    padding: 12px;
-    border-radius: var(--radius-sm);
-    overflow-x: auto;
-    margin: 8px 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    border: 1px solid var(--border);
-  }
-
-  /* Typing indicator */
-  .typing-indicator {
-    display: flex;
-    gap: 4px;
-    padding: 8px 0;
-  }
-
-  .typing-indicator span {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--text-muted);
-    animation: typing 1.4s ease-in-out infinite;
-  }
-
-  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes typing {
-    0%, 100% { opacity: 0.3; transform: scale(0.85); }
-    50% { opacity: 1; transform: scale(1); }
-  }
-
-  /* ===== INPUT AREA ===== */
-  .input-area {
-    padding: 16px 24px 20px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-
-  .input-wrapper {
+  .demo-msg {
     display: flex;
     gap: 10px;
-    align-items: flex-end;
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 90%;
   }
 
-  .input-wrapper textarea {
-    flex: 1;
-    padding: 12px 16px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text-primary);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.5;
-    resize: none;
-    outline: none;
-    min-height: 46px;
-    max-height: 150px;
-    transition: border-color 0.2s;
-  }
+  .demo-msg.user { align-self: flex-end; flex-direction: row-reverse; }
 
-  .input-wrapper textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
-
-  .input-wrapper textarea::placeholder {
-    color: var(--text-muted);
-  }
-
-  .send-btn {
-    width: 46px;
-    height: 46px;
-    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
+  .demo-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.15s, opacity 0.15s;
+    font-size: 10px;
+    font-weight: 700;
     flex-shrink: 0;
   }
 
-  .send-btn:hover { transform: scale(1.05); }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-  .send-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: var(--bg-primary);
+  .demo-msg.ai .demo-avatar {
+    background: var(--gradient-main);
+    color: var(--bg-deep);
   }
 
-  /* ===== QUICK ACTIONS ===== */
-  .quick-actions {
-    display: flex;
-    gap: 8px;
-    padding: 0 24px 12px;
-    flex-wrap: wrap;
-    max-width: 900px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .quick-btn {
-    padding: 7px 14px;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    color: var(--text-secondary);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .quick-btn:hover {
-    background: var(--accent-glow);
-    border-color: var(--accent-dim);
+  .demo-msg.user .demo-avatar {
+    background: #1E3A5F;
     color: var(--accent);
   }
 
-  /* ===== WELCOME ===== */
-  .welcome {
-    flex: 1;
+  .demo-bubble {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .demo-msg.user .demo-bubble {
+    background: #1E3A5F;
+    color: var(--text-primary);
+  }
+
+  .demo-msg.ai .demo-bubble {
+    background: #151D2B;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .demo-bubble strong { color: var(--accent-teal); }
+
+  /* ===== FEATURES ===== */
+  .features {
+    padding: 120px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    color: var(--accent-teal);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .section-desc {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 550px;
+    line-height: 1.7;
+    margin-bottom: 50px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-main);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover {
+    border-color: var(--border-light);
+    background: var(--bg-card-hover);
+    transform: translateY(-3px);
+  }
+
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(56, 189, 248, 0.12);
+    border-radius: 11px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 24px;
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+
+  .feature-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* ===== STANDARDS ===== */
+  .standards {
+    padding: 100px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .standards-inner {
     text-align: center;
   }
 
-  .welcome-icon {
-    width: 72px;
-    height: 72px;
-    background: linear-gradient(135deg, var(--pharma-teal), var(--pharma-blue));
-    border-radius: 20px;
+  .standards-logos {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--bg-primary);
-    margin-bottom: 20px;
-    box-shadow: 0 0 40px var(--accent-glow);
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 40px;
   }
 
-  .welcome h2 {
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    background: linear-gradient(135deg, var(--text-primary), var(--pharma-teal));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .welcome p {
-    color: var(--text-secondary);
-    font-size: 15px;
-    max-width: 500px;
-    line-height: 1.6;
-    margin-bottom: 30px;
-  }
-
-  .welcome-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    max-width: 680px;
-    width: 100%;
-  }
-
-  .welcome-card {
-    background: var(--bg-tertiary);
+  .standard-item {
+    padding: 16px 28px;
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    text-align: left;
-    cursor: pointer;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
     transition: all 0.2s;
   }
 
-  .welcome-card:hover {
-    border-color: var(--accent-dim);
-    background: rgba(56, 189, 248, 0.05);
+  .standard-item:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  /* ===== USE CASES ===== */
+  .use-cases {
+    padding: 100px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .use-cases-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .use-case {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: all 0.3s;
+  }
+
+  .use-case:hover {
+    border-color: var(--border-light);
     transform: translateY(-2px);
   }
 
-  .welcome-card .card-icon {
-    font-size: 20px;
+  .use-case-label {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--accent-teal-glow);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-teal);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  .use-case h3 {
+    font-size: 17px;
+    font-weight: 700;
     margin-bottom: 8px;
   }
 
-  .welcome-card h4 {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
+  .use-case p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
   }
 
-  .welcome-card p {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 0;
-    line-height: 1.4;
-  }
-
-  /* ===== ERROR ===== */
-  .error-msg {
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.2);
-    border-radius: var(--radius-sm);
+  .use-case .example-prompt {
+    margin-top: 14px;
     padding: 10px 14px;
-    font-size: 13px;
-    color: var(--error);
-    margin-top: 12px;
-    display: none;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    border-left: 2px solid var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.5;
   }
 
-  .error-msg.visible { display: block; }
+  /* ===== CTA ===== */
+  .cta {
+    padding: 100px 0 120px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-main);
+  }
+
+  .cta-box h2 {
+    font-size: clamp(26px, 3vw, 36px);
+    font-weight: 800;
+    margin-bottom: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .cta-box p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  footer .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  footer p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+
+  footer a:hover { color: var(--text-primary); }
 
   /* ===== RESPONSIVE ===== */
-  @media (max-width: 640px) {
-    .header { padding: 10px 16px; }
-    .messages { padding: 16px; }
-    .input-area { padding: 12px 16px 16px; }
-    .quick-actions { padding: 0 16px 8px; }
-    .message { max-width: 95%; }
-    .welcome-cards { grid-template-columns: 1fr; }
-    .setup-card { padding: 24px; margin: 16px; }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .use-cases-grid { grid-template-columns: 1fr; }
+    .hero { padding: 130px 0 60px; }
+    .hero-actions { flex-direction: column; }
+    .standards-logos { gap: 16px; }
+    .standard-item { padding: 12px 20px; font-size: 12px; }
+    .cta-box { padding: 40px 24px; }
+    footer .container { flex-direction: column; gap: 8px; text-align: center; }
+    .demo-preview { margin: 40px 16px 0; }
   }
 </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <div class="logo-mark">GxP</div>
-      <div class="logo-text">
-        <h1>GxP Agent</h1>
-        <span>Pharma Engineering AI</span>
-      </div>
-    </div>
-    <div class="status-pill" id="statusPill" style="display:none;">
-      <div class="status-dot"></div>
-      Conectado
-    </div>
-  </div>
+  <!-- BG Effects -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
 
-  <!-- SETUP SCREEN -->
-  <div class="setup-screen" id="setupScreen">
-    <div class="setup-card">
-      <h2>Configura tu GxP Agent</h2>
-      <p>Necesitas tu API Key de Anthropic para conectar el agente. La clave se guarda solo en tu navegador — nunca sale de tu equipo.</p>
-      <label for="apiKeyInput">API Key de Anthropic</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
-      <div class="error-msg" id="setupError"></div>
-      <button class="setup-btn" id="setupBtn" onclick="connectAgent()">Conectar Agente</button>
-      <div class="setup-hint">
-        <strong>¿No tienes API Key?</strong><br>
-        Ve a <code>console.anthropic.com</code> → Sign up → Billing → Añade $5 → API Keys → Create Key
-      </div>
+  <!-- NAV -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <div class="nav-mark">GxP</div>
+        <span class="nav-name">GxP Agent</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Funcionalidades</a></li>
+        <li><a href="#standards">Normativas</a></li>
+        <li><a href="#use-cases">Casos de Uso</a></li>
+        <li><a href="app.html" class="nav-cta">Abrir Agente →</a></li>
+      </ul>
     </div>
-  </div>
+  </nav>
 
-  <!-- CHAT CONTAINER -->
-  <div class="chat-container" id="chatContainer">
-    
-    <!-- WELCOME (shown when no messages) -->
-    <div class="welcome" id="welcomeScreen">
-      <div class="welcome-icon">GxP</div>
-      <h2>¿En qué puedo ayudarte?</h2>
-      <p>Soy tu agente de IA especializado en ingeniería farmacéutica: salas limpias, HVAC, GMP, ISO 14644, EU Annex 1, agua purificada y más.</p>
-      <div class="welcome-cards">
-        <div class="welcome-card" onclick="sendQuickPrompt('clasificacion')">
-          <div class="card-icon">🏗️</div>
-          <h4>Clasificación de salas</h4>
-          <p>Verificar clasificaciones ISO 14644 y EU GMP Annex 1</p>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Disponible ahora — Early Access
+      </div>
+      <h1>Diseña plantas farmacéuticas<br><span class="gradient-text">con inteligencia artificial</span></h1>
+      <p>GxP Agent es un asistente de IA especializado en ingeniería farmacéutica. Verifica normativas, calcula parámetros HVAC, y genera documentación técnica — en segundos.</p>
+      <div class="hero-actions">
+        <a href="app.html" class="btn-primary">Probar Agente Gratis →</a>
+        <a href="#features" class="btn-secondary">Ver funcionalidades</a>
+      </div>
+
+      <!-- Demo Preview -->
+      <div class="demo-preview">
+        <div class="demo-topbar">
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
         </div>
-        <div class="welcome-card" onclick="sendQuickPrompt('hvac')">
-          <div class="card-icon">💨</div>
-          <h4>Diseño HVAC</h4>
-          <p>Renovaciones de aire, cascada de presiones, UTA</p>
-        </div>
-        <div class="welcome-card" onclick="sendQuickPrompt('agua')">
-          <div class="card-icon">💧</div>
-          <h4>Agua purificada</h4>
-          <p>Sistemas PW/WFI, diseño de loops, sanitización</p>
-        </div>
-        <div class="welcome-card" onclick="sendQuickPrompt('gmp')">
-          <div class="card-icon">📋</div>
-          <h4>Revisión GMP</h4>
-          <p>Verificar cumplimiento normativo de mi diseño</p>
+        <div class="demo-body">
+          <div class="demo-msg user">
+            <div class="demo-avatar">Tú</div>
+            <div class="demo-bubble">Necesito la cascada de presiones para una zona estéril de inyectables con esclusas de personal y material</div>
+          </div>
+          <div class="demo-msg ai">
+            <div class="demo-avatar">GxP</div>
+            <div class="demo-bubble">
+              Según <strong>EU GMP Annex 1 §4.3</strong>, la cascada de presiones para una zona estéril de inyectables debe mantener un diferencial mínimo de <strong>10-15 Pa</strong> entre zonas adyacentes de diferente clasificación. Te recomiendo esta cascada:<br><br>
+              <strong>Grado A</strong> (llenado): +45 Pa ref. pasillo<br>
+              <strong>Grado B</strong> (entorno): +30 Pa<br>
+              <strong>Esclusa personal</strong>: +15 Pa<br>
+              <strong>Pasillo</strong>: referencia (0 Pa)...
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- MESSAGES -->
-    <div class="messages" id="messagesContainer" style="display:none;"></div>
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-label">Funcionalidades</div>
+      <h2 class="section-title">Todo lo que necesita tu equipo<br>de ingeniería farmacéutica</h2>
+      <p class="section-desc">GxP Agent combina inteligencia artificial con conocimiento profundo de normativas pharma para acelerar tu trabajo de diseño.</p>
 
-    <!-- QUICK ACTIONS -->
-    <div class="quick-actions" id="quickActions">
-      <button class="quick-btn" onclick="sendQuickPrompt('presiones')">Cascada de presiones</button>
-      <button class="quick-btn" onclick="sendQuickPrompt('renovaciones')">Renovaciones de aire</button>
-      <button class="quick-btn" onclick="sendQuickPrompt('acabados')">Acabados sala limpia</button>
-      <button class="quick-btn" onclick="sendQuickPrompt('tabla')">Generar tabla de salas</button>
-    </div>
-
-    <!-- INPUT -->
-    <div class="input-area">
-      <div class="input-wrapper">
-        <textarea id="userInput" placeholder="Pregunta sobre ingeniería farmacéutica..." rows="1" onkeydown="handleKeydown(event)" oninput="autoResize(this)"></textarea>
-        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">💨</div>
+          <h3>Cálculos HVAC</h3>
+          <p>Renovaciones de aire, balances, dimensionamiento de UTAs, cascadas de presión según clasificación de sala.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏗️</div>
+          <h3>Clasificación de Salas</h3>
+          <p>Verificación automática de clasificaciones ISO 14644 y grados EU GMP con límites de partículas y condiciones.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Verificación GMP</h3>
+          <p>Revisa tu diseño contra EU GMP Annex 1, FDA 21 CFR, ISPE Guidelines y alerta sobre incumplimientos.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💧</div>
+          <h3>Agua Purificada</h3>
+          <p>Diseño de sistemas PW y WFI: loops, puntos de uso, sanitización, parámetros de calidad según farmacopea.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Análisis de Datos Revit</h3>
+          <p>Sube tus schedules exportados de Revit (Excel) y el agente los analiza, verifica y genera reportes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3>Documentación Técnica</h3>
+          <p>Genera memorias técnicas, tablas de equipos, criterios de diseño y especificaciones funcionales.</p>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-<script>
-// ============================================
-// STATE
-// ============================================
-let API_KEY = '';
-let conversationHistory = [];
-let isStreaming = false;
-
-const SYSTEM_PROMPT = `Eres GxP Agent, un asistente de IA experto en ingeniería farmacéutica. Tu conocimiento abarca:
-
-NORMATIVAS Y ESTÁNDARES:
-- ISO 14644 (clasificación de salas limpias, monitoreo de partículas)
-- EU GMP Annex 1 (fabricación de medicamentos estériles, 2022 revisión)
-- FDA 21 CFR Parts 210, 211 (cGMP para productos farmacéuticos)
-- ISPE Baseline Guides (Vol. 1-7)
-- WHO TRS (Technical Report Series) para GMP
-- ICH Q7 (API), ICH Q9 (gestión de riesgos), ICH Q10 (sistema de calidad farmacéutica)
-- USP <797>, <800> (preparación estéril, medicamentos peligrosos)
-- ASHRAE 170 (ventilación en instalaciones de salud)
-
-ÁREAS DE ESPECIALIDAD:
-1. SALAS LIMPIAS: Clasificación ISO/GMP (Grado A/B/C/D), diseño de layouts, flujos de personal y material, esclusas, pass-throughs, vestidores, cascadas de presión (positiva para estériles, negativa para contención)
-2. HVAC FARMACÉUTICO: Cálculo de renovaciones de aire (ACH), dimensionamiento de UTAs, filtros HEPA/ULPA, control de temperatura y humedad, calificación de sistemas, balances de aire
-3. AGUA PURIFICADA: Diseño de sistemas PW (Purified Water) y WFI (Water for Injection), loops de distribución, puntos de uso, sanitización (ozono, agua caliente, vapor), storage tanks, TOC y conductividad
-4. ACABADOS Y MATERIALES: Especificaciones de suelos (epoxi, vinilo, poliuretano), paredes (panel sandwich, acero inoxidable, HPL), techos (walkable vs non-walkable), curvas sanitarias (coving), rugosidad superficial (Ra ≤ 0.8 μm para Grado A/B)
-5. UTILIDADES: Vapor limpio, gases comprimidos (nitrógeno, aire comprimido farmacéutico), vacío, sistemas de contención (RABS, isolators)
-6. CUALIFICACIÓN: DQ, IQ, OQ, PQ, protocolos de validación, mapeo térmico, conteos de partículas, recovery tests, integridad de filtros HEPA
-
-FORMATO DE RESPUESTA:
-- Sé directo y técnico, pero claro
-- Cuando cites normativas, referencia la sección específica (ej: "EU GMP Annex 1, §4.3")
-- Si el usuario pregunta algo que requiere datos de su proyecto, pídelos específicamente
-- Usa tablas markdown cuando sea útil (clasificaciones, parámetros)
-- Si detectas un posible error de diseño o incumplimiento normativo, alerta claramente
-- Puedes responder en español o inglés según el idioma del usuario
-
-IMPORTANTE: Eres un agente de ingeniería, no un chatbot genérico. Da respuestas de nivel consultor senior. Si no estás seguro de algo, dilo — la seguridad del paciente depende de la precisión de tus respuestas.`;
-
-const QUICK_PROMPTS = {
-  clasificacion: '¿Cuáles son las clasificaciones de salas limpias según ISO 14644-1 y su equivalencia con los grados EU GMP (A, B, C, D)? Incluye los límites de partículas para cada clase.',
-  hvac: 'Necesito diseñar el sistema HVAC para una zona de fabricación de inyectables estériles. ¿Cuáles son los parámetros clave que debo considerar (renovaciones de aire, presiones, temperatura, humedad)?',
-  agua: 'Explícame las diferencias clave entre un sistema de Agua Purificada (PW) y Agua para Inyección (WFI) según farmacopea. ¿Cuáles son los parámetros críticos de cada uno?',
-  gmp: 'Voy a diseñar una planta de sólidos orales. ¿Cuáles son los requisitos GMP principales que debo considerar en el layout, flujos, clasificación de zonas y HVAC?',
-  presiones: 'Explícame cómo diseñar la cascada de presiones en una zona estéril. ¿Cuál es el diferencial mínimo entre zonas según EU GMP Annex 1?',
-  renovaciones: '¿Cuántas renovaciones de aire por hora (ACH) se requieren para cada grado de sala limpia (A, B, C, D) según las guías EU GMP e ISPE?',
-  acabados: '¿Cuáles son las especificaciones de acabados (suelos, paredes, techos) para una sala limpia Grado B? ¿Qué rugosidad superficial se exige?',
-  tabla: 'Genera una tabla resumen con las clasificaciones de salas limpias que incluya: Grado EU GMP, Clase ISO equivalente, límites de partículas (≥0.5μm y ≥5μm) en reposo y en operación, y renovaciones de aire típicas.'
-};
-
-// ============================================
-// SETUP
-// ============================================
-function connectAgent() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  const errorEl = document.getElementById('setupError');
-  
-  if (!key) {
-    errorEl.textContent = 'Introduce tu API Key';
-    errorEl.classList.add('visible');
-    return;
-  }
-  
-  if (!key.startsWith('sk-ant-')) {
-    errorEl.textContent = 'La API Key debe empezar por sk-ant-...';
-    errorEl.classList.add('visible');
-    return;
-  }
-
-  API_KEY = key;
-  localStorage.setItem('gxp_agent_key', key);
-  
-  document.getElementById('setupScreen').style.display = 'none';
-  document.getElementById('chatContainer').classList.add('active');
-  document.getElementById('statusPill').style.display = 'flex';
-  document.getElementById('userInput').focus();
-}
-
-// Check for saved key on load
-window.addEventListener('DOMContentLoaded', () => {
-  const savedKey = localStorage.getItem('gxp_agent_key');
-  if (savedKey) {
-    API_KEY = savedKey;
-    document.getElementById('setupScreen').style.display = 'none';
-    document.getElementById('chatContainer').classList.add('active');
-    document.getElementById('statusPill').style.display = 'flex';
-  }
-});
-
-// ============================================
-// CHAT
-// ============================================
-function sendQuickPrompt(id) {
-  const prompt = QUICK_PROMPTS[id];
-  if (prompt) {
-    document.getElementById('userInput').value = prompt;
-    sendMessage();
-  }
-}
-
-async function sendMessage() {
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text || isStreaming) return;
-
-  // Hide welcome, show messages
-  document.getElementById('welcomeScreen').style.display = 'none';
-  document.getElementById('messagesContainer').style.display = 'flex';
-
-  // Add user message
-  addMessage('user', text);
-  input.value = '';
-  input.style.height = 'auto';
-  
-  // Add to history
-  conversationHistory.push({ role: 'user', content: text });
-
-  // Show typing
-  const typingEl = addTypingIndicator();
-  
-  isStreaming = true;
-  document.getElementById('sendBtn').disabled = true;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: SYSTEM_PROMPT,
-        messages: conversationHistory
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `Error ${response.status}`);
-    }
-
-    const data = await response.json();
-    const assistantText = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('\n');
-
-    // Remove typing, add response
-    typingEl.remove();
-    addMessage('ai', assistantText);
-    
-    conversationHistory.push({ role: 'assistant', content: assistantText });
-
-  } catch (error) {
-    typingEl.remove();
-    let errorMsg = error.message;
-    if (errorMsg.includes('401') || errorMsg.includes('auth')) {
-      errorMsg = 'API Key inválida. Revisa tu clave en console.anthropic.com';
-      localStorage.removeItem('gxp_agent_key');
-    }
-    addMessage('ai', `⚠️ **Error:** ${errorMsg}`);
-  } finally {
-    isStreaming = false;
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').focus();
-  }
-}
-
-function addMessage(role, content) {
-  const container = document.getElementById('messagesContainer');
-  const div = document.createElement('div');
-  div.className = `message ${role}`;
-  
-  const avatar = document.createElement('div');
-  avatar.className = 'message-avatar';
-  avatar.textContent = role === 'ai' ? 'GxP' : 'Tú';
-  
-  const contentDiv = document.createElement('div');
-  contentDiv.className = 'message-content';
-  contentDiv.innerHTML = parseMarkdown(content);
-  
-  div.appendChild(avatar);
-  div.appendChild(contentDiv);
-  container.appendChild(div);
-  
-  container.scrollTop = container.scrollHeight;
-}
-
-function addTypingIndicator() {
-  const container = document.getElementById('messagesContainer');
-  const div = document.createElement('div');
-  div.className = 'message ai';
-  div.innerHTML = `
-    <div class="message-avatar">GxP</div>
-    <div class="message-content">
-      <div class="typing-indicator">
-        <span></span><span></span><span></span>
+  <!-- STANDARDS -->
+  <section class="standards" id="standards">
+    <div class="container">
+      <div class="standards-inner">
+        <div class="section-label">Normativas integradas</div>
+        <h2 class="section-title">Conocimiento normativo de nivel consultor</h2>
+        <p class="section-desc" style="margin: 0 auto 40px;">GxP Agent tiene integrado el conocimiento de las principales normativas y guías de la industria farmacéutica.</p>
+        <div class="standards-logos">
+          <div class="standard-item">ISO 14644</div>
+          <div class="standard-item">EU GMP Annex 1</div>
+          <div class="standard-item">FDA 21 CFR</div>
+          <div class="standard-item">ISPE Guides</div>
+          <div class="standard-item">ICH Q7/Q9/Q10</div>
+          <div class="standard-item">WHO TRS</div>
+          <div class="standard-item">ASHRAE 170</div>
+          <div class="standard-item">USP &lt;797&gt;</div>
+        </div>
       </div>
     </div>
-  `;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
+  </section>
 
-// ============================================
-// MARKDOWN PARSER (basic)
-// ============================================
-function parseMarkdown(text) {
-  let html = text
-    // Code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-    // Inline code
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // Bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Headers
-    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
-    // Tables
-    .replace(/^\|(.+)\|$/gm, (match) => {
-      const cells = match.split('|').filter(c => c.trim());
-      if (cells.every(c => /^[\s-:]+$/.test(c))) return ''; // separator row
-      const tag = 'td';
-      return '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
-    });
-  
-  // Wrap table rows
-  html = html.replace(/((<tr>.*<\/tr>\s*)+)/g, '<table>$1</table>');
-  
-  // Lists
-  html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
-  html = html.replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>');
-  
-  // Numbered lists
-  html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-  
-  // Paragraphs
-  html = html.split('\n\n').map(block => {
-    block = block.trim();
-    if (!block) return '';
-    if (block.startsWith('<')) return block;
-    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
-  }).join('');
-  
-  return html;
-}
+  <!-- USE CASES -->
+  <section class="use-cases" id="use-cases">
+    <div class="container">
+      <div class="section-label">Casos de uso</div>
+      <h2 class="section-title">Diseñado para tu día a día</h2>
+      <p class="section-desc">Preguntas reales, respuestas de nivel senior.</p>
 
-// ============================================
-// UI HELPERS
-// ============================================
-function handleKeydown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
+      <div class="use-cases-grid">
+        <div class="use-case">
+          <div class="use-case-label">HVAC</div>
+          <h3>Diseño de sistemas HVAC farmacéuticos</h3>
+          <p>Calcula renovaciones de aire, dimensiona UTAs, diseña cascadas de presión, y verifica parámetros contra normativa.</p>
+          <div class="example-prompt">"Calcula las renovaciones de aire necesarias para una sala Grado C de 120 m² con 3.2 m de altura"</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-label">Salas Limpias</div>
+          <h3>Verificación de clasificación</h3>
+          <p>Valida que tu diseño cumple con los requisitos de la clasificación objetivo, incluyendo acabados, presiones y condiciones ambientales.</p>
+          <div class="example-prompt">"Revisa si estos parámetros cumplen para una sala Grado B: 25 ACH, 30 Pa, paredes HPL, suelo vinilo"</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-label">Documentación</div>
+          <h3>Generación de memorias técnicas</h3>
+          <p>Genera borradores de memorias técnicas, criterios de diseño, y especificaciones funcionales a partir de los datos de tu proyecto.</p>
+          <div class="example-prompt">"Genera una memoria técnica de HVAC para una zona de fabricación de sólidos orales con 8 salas"</div>
+        </div>
+        <div class="use-case">
+          <div class="use-case-label">Análisis</div>
+          <h3>Análisis de schedules de Revit</h3>
+          <p>Exporta tus tablas de planificación de Revit a Excel, súbelas al agente, y obtén un análisis automático de cumplimiento.</p>
+          <div class="example-prompt">"Analiza este Excel con la lista de salas y dime si las clasificaciones y presiones son correctas"</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 150) + 'px';
-}
-</script>
+  <!-- CTA -->
+  <section class="cta" id="cta">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Empieza a diseñar con IA</h2>
+        <p>Accede al agente ahora. Sin instalación, sin compromiso. Solo tu conocimiento de ingeniería farmacéutica amplificado.</p>
+        <a href="app.html" class="btn-primary" style="font-size: 16px; padding: 16px 40px;">Abrir GxP Agent →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 GxP Agent. Todos los derechos reservados.</p>
+      <div style="display: flex; gap: 24px;">
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Contacto</a>
+      </div>
+    </div>
+  </footer>
 
 </body>
 </html>
