@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GxP Agent — AI para Ingeniería Farmacéutica</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg-white:#FFFFFF;--bg-light:#F4F7FB;--bg-soft:#EAF0F8;
@@ -20,7 +21,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--text-primary);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* === HEADER === */
+/* HEADER */
 .header{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:var(--bg-white);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
 .header-left{display:flex;align-items:center;gap:12px}
 .logo-mark{width:34px;height:34px;background:var(--blue-dark);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
@@ -33,23 +34,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .status-dot{width:5px;height:5px;border-radius:50%;background:var(--success);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* === TABS === */
+/* TABS */
 .tabs-bar{display:flex;background:var(--bg-white);border-bottom:1px solid var(--border);padding:0 24px;flex-shrink:0;gap:0;overflow-x:auto}
-.tab-btn{padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tabs-bar::-webkit-scrollbar{height:0}
+.tab-btn{padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .tab-btn:hover{color:var(--text-primary);background:var(--bg-light)}
 .tab-btn.active{color:var(--blue-dark);border-bottom-color:var(--blue-dark)}
 .tab-btn .tab-icon{font-size:15px}
-.tab-badge{font-size:9px;padding:2px 6px;background:var(--blue-pale);color:var(--blue-dark);border-radius:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 
-/* === TAB PANELS === */
+/* TAB PANELS */
 .tab-panel{flex:1;display:none;flex-direction:column;overflow:hidden}
 .tab-panel.active{display:flex}
 
-/* === CHAT === */
+/* CHAT */
 .messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;background:var(--bg-light)}
-.messages::-webkit-scrollbar{width:5px}
-.messages::-webkit-scrollbar-track{background:transparent}
-.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:transparent}.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 .message{display:flex;gap:10px;max-width:82%;animation:fadeIn .3s ease-out}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .message.user{align-self:flex-end;flex-direction:row-reverse}
@@ -57,8 +56,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .message.ai .message-avatar{background:var(--blue-dark);color:#fff}
 .message.user .message-avatar{background:var(--blue-pale);color:var(--blue-dark);border:1px solid var(--border-blue)}
 .message-content{padding:14px 18px;border-radius:var(--radius);font-size:14px;line-height:1.7}
-.message.ai .message-content{background:var(--bg-white);border:1px solid var(--border);color:var(--text-primary);box-shadow:var(--shadow-sm)}
-.message.user .message-content{background:var(--blue-pale);border:1px solid var(--border-blue);color:var(--text-primary)}
+.message.ai .message-content{background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.message.user .message-content{background:var(--blue-pale);border:1px solid var(--border-blue)}
 .message-content p{margin-bottom:8px}.message-content p:last-child{margin-bottom:0}
 .message-content strong{color:var(--blue-dark);font-weight:600}
 .message-content code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}
@@ -72,7 +71,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .typing-indicator span{width:7px;height:7px;border-radius:50%;background:var(--blue-light);animation:typing 1.4s ease-in-out infinite}
 .typing-indicator span:nth-child(2){animation-delay:.2s}.typing-indicator span:nth-child(3){animation-delay:.4s}
 @keyframes typing{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
-
 .input-area{padding:14px 24px 18px;background:var(--bg-white);border-top:1px solid var(--border);flex-shrink:0}
 .input-wrapper{display:flex;gap:10px;align-items:flex-end;max-width:860px;margin:0 auto}
 .input-wrapper textarea{flex:1;padding:11px 16px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;resize:none;outline:none;min-height:44px;max-height:150px;transition:border-color .2s}
@@ -81,11 +79,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .send-btn{width:44px;height:44px;background:var(--blue-dark);border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s;flex-shrink:0}
 .send-btn:hover{transform:scale(1.05)}.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .send-btn svg{width:18px;height:18px;fill:#fff}
-
 .quick-actions{display:flex;gap:6px;padding:0 24px 10px;flex-wrap:wrap;max-width:860px;margin:0 auto;width:100%}
 .quick-btn{padding:6px 12px;background:var(--bg-white);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
 .quick-btn:hover{background:var(--blue-pale);border-color:var(--border-blue);color:var(--blue-dark)}
-
 .welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;background:var(--bg-light)}
 .welcome-icon{width:60px;height:60px;background:var(--blue-dark);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,61,166,0.2)}
 .welcome h2{font-size:22px;font-weight:700;margin-bottom:8px}
@@ -94,16 +90,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .welcome-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:left;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
 .welcome-card:hover{border-color:var(--border-blue);background:var(--blue-pale);transform:translateY(-2px)}
 .welcome-card .card-icon{font-size:18px;margin-bottom:6px}
-.welcome-card h4{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+.welcome-card h4{font-size:12px;font-weight:600;margin-bottom:3px}
 .welcome-card p{font-size:11px;color:var(--text-muted);margin-bottom:0;line-height:1.4}
 
-/* === TOOL PANELS === */
+/* TOOL PANELS */
 .tool-panel{flex:1;overflow-y:auto;padding:32px 24px;background:var(--bg-light)}
 .tool-inner{max-width:720px;margin:0 auto}
 .tool-header{margin-bottom:28px}
-.tool-header h2{font-size:22px;font-weight:800;color:var(--text-primary);margin-bottom:6px}
+.tool-header h2{font-size:22px;font-weight:800;margin-bottom:6px}
 .tool-header p{font-size:14px;color:var(--text-secondary);line-height:1.6}
-
 .form-group{margin-bottom:20px}
 .form-label{display:block;font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px}
 .form-sublabel{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px}
@@ -112,9 +107,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .form-input{width:100%;padding:11px 14px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-primary);outline:none;transition:border-color .2s}
 .form-input:focus{border-color:var(--blue-dark);box-shadow:0 0 0 3px rgba(0,61,166,0.08)}
 .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A97A8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-
 .calc-btn{padding:13px 32px;background:var(--blue-dark);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:8px}
 .calc-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,61,166,0.25)}
+.calc-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
 /* Results */
 .result-card{display:none;margin-top:28px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}
@@ -128,23 +123,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .result-item-value{font-size:24px;font-weight:800;color:var(--blue-dark)}
 .result-item-unit{font-size:13px;font-weight:500;color:var(--text-secondary);margin-left:2px}
 .result-item-note{font-size:11px;color:var(--text-muted);margin-top:4px}
-
 .result-status{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--border);font-size:13px;font-weight:600}
 .result-status.pass{background:rgba(15,155,110,0.04);color:var(--success)}
 .result-status.warn{background:rgba(217,119,6,0.04);color:var(--warning)}
 .result-status.fail{background:rgba(220,74,74,0.04);color:var(--error)}
 .status-icon{font-size:16px}
-
 .ref-note{margin-top:16px;padding:12px;background:var(--bg-light);border-radius:var(--radius-sm);border-left:3px solid var(--blue-dark);font-size:12px;color:var(--text-secondary);line-height:1.6}
 
-/* === PRESSURE CASCADE === */
+/* Cascade */
 .cascade-room{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:grid;grid-template-columns:2fr 1.5fr 1fr 40px;gap:12px;align-items:end}
 .cascade-room .form-group{margin-bottom:0}
 .remove-room{width:36px;height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text-muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.remove-room:hover{border-color:var(--error);color:var(--error);background:rgba(220,74,74,0.04)}
+.remove-room:hover{border-color:var(--error);color:var(--error)}
 .add-room-btn{padding:10px;border:2px dashed var(--border);border-radius:var(--radius);background:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:16px;width:100%}
 .add-room-btn:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
-
 .cascade-result-room{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
 .cascade-result-room:last-child{border-bottom:none}
 .cascade-room-name{font-weight:600;font-size:14px}
@@ -154,36 +146,83 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .cascade-room-diff.pass{background:rgba(15,155,110,0.08);color:var(--success)}
 .cascade-room-diff.fail{background:rgba(220,74,74,0.08);color:var(--error)}
 
+/* EXCEL UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-white)}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue-dark);background:var(--blue-pale)}
+.upload-zone-icon{font-size:40px;margin-bottom:12px}
+.upload-zone h3{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
+.upload-zone p{font-size:13px;color:var(--text-muted)}
+.upload-zone input{display:none}
+
+.data-preview{margin-top:20px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.data-preview-header{padding:12px 16px;background:var(--bg-light);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.data-preview-header h3{font-size:14px;font-weight:700}
+.data-preview-info{font-size:12px;color:var(--text-muted)}
+.data-table-wrap{overflow-x:auto;max-height:300px;overflow-y:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{padding:8px 12px;background:var(--blue-dark);color:#fff;font-weight:600;text-align:left;position:sticky;top:0;z-index:1;white-space:nowrap}
+.data-table td{padding:7px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table tr:nth-child(even){background:var(--bg-light)}
+.data-table tr:hover{background:var(--blue-pale)}
+
+.analyze-section{margin-top:20px;display:none}
+.analyze-section.visible{display:block}
+.analyze-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.analyze-opt{padding:8px 16px;background:var(--bg-white);border:1px solid var(--border);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text-secondary)}
+.analyze-opt:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
+.analyze-opt.selected{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+
+.ai-analysis{margin-top:20px;display:none}
+.ai-analysis.visible{display:block}
+.ai-analysis-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}
+.ai-analysis-header{padding:14px 20px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+.ai-analysis-body{padding:20px;font-size:14px;line-height:1.7}
+.ai-analysis-body strong{color:var(--blue-dark)}
+.ai-analysis-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+.ai-analysis-body td,.ai-analysis-body th{padding:6px 10px;border:1px solid var(--border);text-align:left}
+.ai-analysis-body tr:nth-child(even){background:var(--bg-light)}
+.ai-analysis-body ul,.ai-analysis-body ol{margin:8px 0;padding-left:20px}
+.ai-analysis-body li{margin-bottom:4px}
+.ai-analysis-body h3,.ai-analysis-body h4{color:var(--blue-dark);margin:14px 0 6px}
+.ai-analysis-body pre{background:var(--bg-light);padding:12px;border-radius:var(--radius-sm);overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border)}
+.ai-analysis-body code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}
+
+.loading-analysis{display:flex;align-items:center;gap:10px;padding:20px;color:var(--text-secondary);font-size:14px}
+.loading-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue-dark);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.reset-btn{padding:8px 16px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.reset-btn:hover{border-color:var(--error);color:var(--error)}
+
 @media(max-width:640px){
-  .header{padding:10px 16px}.tabs-bar{padding:0 16px}.messages{padding:16px}.input-area{padding:12px 16px 16px}
-  .quick-actions{padding:0 16px 8px}.message{max-width:95%}.welcome-cards{grid-template-columns:1fr}
+  .header{padding:10px 16px}.tabs-bar{padding:0 12px}.tab-btn{padding:10px 12px;font-size:12px}
+  .messages{padding:16px}.input-area{padding:12px 16px 16px}.quick-actions{padding:0 16px 8px}
+  .message{max-width:95%}.welcome-cards{grid-template-columns:1fr}
   .tool-panel{padding:24px 16px}.form-row,.form-row-3{grid-template-columns:1fr}
   .result-grid{grid-template-columns:1fr}.cascade-room{grid-template-columns:1fr}
-  .tab-btn{padding:10px 14px;font-size:12px}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-left"><div class="logo-mark">GxP</div><div class="logo-text"><h1>GxP Agent</h1><span>Pharma Engineering AI</span></div></div>
   <div class="header-right"><a href="index.html" class="back-link">← Inicio</a><div class="status-pill"><div class="status-dot"></div>Online</div></div>
 </div>
 
-<!-- TABS -->
 <div class="tabs-bar">
   <button class="tab-btn active" onclick="switchTab('chat')"><span class="tab-icon">💬</span> Chat IA</button>
   <button class="tab-btn" onclick="switchTab('ach')"><span class="tab-icon">💨</span> Calculadora ACH</button>
   <button class="tab-btn" onclick="switchTab('cascade')"><span class="tab-icon">📊</span> Cascada Presiones</button>
+  <button class="tab-btn" onclick="switchTab('excel')"><span class="tab-icon">📁</span> Analizar Excel</button>
 </div>
 
-<!-- ==================== TAB: CHAT ==================== -->
+<!-- TAB: CHAT -->
 <div class="tab-panel active" id="panel-chat">
   <div class="welcome" id="welcomeScreen">
     <div class="welcome-icon">GxP</div>
     <h2>¿En qué puedo ayudarte?</h2>
-    <p>Agente IA especializado en ingeniería farmacéutica: salas limpias, HVAC, GMP, ISO 14644, EU Annex 1, agua purificada.</p>
+    <p>Agente IA especializado en ingeniería farmacéutica: salas limpias, HVAC, GMP, ISO 14644, EU Annex 1.</p>
     <div class="welcome-cards">
       <div class="welcome-card" onclick="sendQuickPrompt('clasificacion')"><div class="card-icon">🏗️</div><h4>Clasificación de salas</h4><p>ISO 14644 y EU GMP</p></div>
       <div class="welcome-card" onclick="sendQuickPrompt('hvac')"><div class="card-icon">💨</div><h4>Diseño HVAC</h4><p>ACH, presiones, UTA</p></div>
@@ -204,121 +243,105 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
   </div></div>
 </div>
 
-<!-- ==================== TAB: ACH CALCULATOR ==================== -->
+<!-- TAB: ACH -->
 <div class="tab-panel" id="panel-ach">
   <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header">
-      <h2>Calculadora de Renovaciones de Aire (ACH)</h2>
-      <p>Calcula las renovaciones de aire por hora y el caudal necesario según la clasificación de tu sala limpia. Basado en ISPE Baseline Guide Vol. 2 y EU GMP Annex 1.</p>
-    </div>
-
+    <div class="tool-header"><h2>Calculadora de Renovaciones de Aire (ACH)</h2><p>Calcula las renovaciones de aire por hora y el caudal necesario según clasificación. Basado en ISPE Baseline Guide Vol. 2 y EU GMP Annex 1.</p></div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Clasificación de la sala</label>
-        <select id="ach-grade" class="form-input form-select" onchange="updateAchRecommendation()">
-          <option value="">Seleccionar...</option>
-          <option value="A">Grado A (ISO 5) — Flujo unidireccional</option>
-          <option value="B">Grado B (ISO 5 reposo / ISO 7 operación)</option>
-          <option value="C">Grado C (ISO 7 reposo / ISO 8 operación)</option>
-          <option value="D">Grado D (ISO 8 reposo)</option>
-          <option value="CNC">Zona CNC (No clasificada / Almacén)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">ACH objetivo <span class="form-sublabel" id="ach-rec-label"></span></label>
-        <input type="number" id="ach-target" class="form-input" placeholder="Ej: 20">
-      </div>
+      <div class="form-group"><label class="form-label">Clasificación de la sala</label><select id="ach-grade" class="form-input form-select" onchange="updateAchRec()"><option value="">Seleccionar...</option><option value="A">Grado A (ISO 5)</option><option value="B">Grado B (ISO 5/7)</option><option value="C">Grado C (ISO 7/8)</option><option value="D">Grado D (ISO 8)</option><option value="CNC">CNC / Almacén</option></select></div>
+      <div class="form-group"><label class="form-label">ACH objetivo <span class="form-sublabel" id="ach-rec-label"></span></label><input type="number" id="ach-target" class="form-input" placeholder="Ej: 20"></div>
     </div>
-
     <div class="form-row-3">
-      <div class="form-group">
-        <label class="form-label">Largo (m)</label>
-        <input type="number" id="ach-length" class="form-input" placeholder="Ej: 6.0" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Ancho (m)</label>
-        <input type="number" id="ach-width" class="form-input" placeholder="Ej: 4.5" step="0.1">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Altura (m)</label>
-        <input type="number" id="ach-height" class="form-input" placeholder="Ej: 2.7" step="0.1">
-      </div>
+      <div class="form-group"><label class="form-label">Largo (m)</label><input type="number" id="ach-length" class="form-input" placeholder="6.0" step="0.1"></div>
+      <div class="form-group"><label class="form-label">Ancho (m)</label><input type="number" id="ach-width" class="form-input" placeholder="4.5" step="0.1"></div>
+      <div class="form-group"><label class="form-label">Altura (m)</label><input type="number" id="ach-height" class="form-input" placeholder="2.7" step="0.1"></div>
     </div>
-
     <button class="calc-btn" onclick="calculateACH()">Calcular renovaciones de aire</button>
-
     <div class="result-card" id="ach-result">
       <div class="result-card-header">💨 Resultado del cálculo</div>
-      <div class="result-card-body">
-        <div class="result-grid">
-          <div class="result-item">
-            <div class="result-item-label">Volumen de la sala</div>
-            <div><span class="result-item-value" id="res-volume">—</span><span class="result-item-unit">m³</span></div>
-          </div>
-          <div class="result-item highlight">
-            <div class="result-item-label">Caudal necesario</div>
-            <div><span class="result-item-value" id="res-flow">—</span><span class="result-item-unit">m³/h</span></div>
-            <div class="result-item-note" id="res-flow-cfm"></div>
-          </div>
-          <div class="result-item">
-            <div class="result-item-label">ACH configurado</div>
-            <div><span class="result-item-value" id="res-ach">—</span><span class="result-item-unit">ren/h</span></div>
-          </div>
-          <div class="result-item">
-            <div class="result-item-label">Superficie</div>
-            <div><span class="result-item-value" id="res-area">—</span><span class="result-item-unit">m²</span></div>
-          </div>
-        </div>
-      </div>
+      <div class="result-card-body"><div class="result-grid">
+        <div class="result-item"><div class="result-item-label">Volumen</div><div><span class="result-item-value" id="res-volume">—</span><span class="result-item-unit">m³</span></div></div>
+        <div class="result-item highlight"><div class="result-item-label">Caudal necesario</div><div><span class="result-item-value" id="res-flow">—</span><span class="result-item-unit">m³/h</span></div><div class="result-item-note" id="res-flow-cfm"></div></div>
+        <div class="result-item"><div class="result-item-label">ACH</div><div><span class="result-item-value" id="res-ach">—</span><span class="result-item-unit">ren/h</span></div></div>
+        <div class="result-item"><div class="result-item-label">Superficie</div><div><span class="result-item-value" id="res-area">—</span><span class="result-item-unit">m²</span></div></div>
+      </div></div>
       <div class="result-status" id="ach-status"></div>
       <div class="ref-note" id="ach-ref-note"></div>
     </div>
   </div></div>
 </div>
 
-<!-- ==================== TAB: PRESSURE CASCADE ==================== -->
+<!-- TAB: CASCADE -->
 <div class="tab-panel" id="panel-cascade">
   <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header">
-      <h2>Verificador de Cascada de Presiones</h2>
-      <p>Define tus salas con su clasificación y presión, y el verificador te indica si los diferenciales cumplen con EU GMP Annex 1 (mínimo 10-15 Pa entre zonas de diferente grado).</p>
-    </div>
-
+    <div class="tool-header"><h2>Verificador de Cascada de Presiones</h2><p>Define salas con clasificación y presión. Verifica diferenciales según EU GMP Annex 1 (mínimo 10-15 Pa).</p></div>
     <div id="cascade-rooms">
-      <div class="cascade-room" data-idx="0">
-        <div class="form-group"><label class="form-label">Nombre de la sala</label><input type="text" class="form-input cascade-name" placeholder="Ej: Zona de llenado"></div>
-        <div class="form-group"><label class="form-label">Clasificación</label>
-          <select class="form-input form-select cascade-grade"><option value="A">Grado A</option><option value="B">Grado B</option><option value="C">Grado C</option><option value="D">Grado D</option><option value="CNC">CNC / Pasillo</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Presión (Pa)</label><input type="number" class="form-input cascade-pressure" placeholder="Ej: 45"></div>
-        <div></div>
-      </div>
-      <div class="cascade-room" data-idx="1">
-        <div class="form-group"><label class="form-label">Nombre de la sala</label><input type="text" class="form-input cascade-name" placeholder="Ej: Entorno Grado B"></div>
-        <div class="form-group"><label class="form-label">Clasificación</label>
-          <select class="form-input form-select cascade-grade"><option value="A">Grado A</option><option value="B" selected>Grado B</option><option value="C">Grado C</option><option value="D">Grado D</option><option value="CNC">CNC / Pasillo</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Presión (Pa)</label><input type="number" class="form-input cascade-pressure" placeholder="Ej: 30"></div>
-        <button class="remove-room" onclick="removeRoom(this)">×</button>
-      </div>
-      <div class="cascade-room" data-idx="2">
-        <div class="form-group"><label class="form-label">Nombre de la sala</label><input type="text" class="form-input cascade-name" placeholder="Ej: Esclusa personal"></div>
-        <div class="form-group"><label class="form-label">Clasificación</label>
-          <select class="form-input form-select cascade-grade"><option value="A">Grado A</option><option value="B">Grado B</option><option value="C">Grado C</option><option value="D" selected>Grado D</option><option value="CNC">CNC / Pasillo</option></select>
-        </div>
-        <div class="form-group"><label class="form-label">Presión (Pa)</label><input type="number" class="form-input cascade-pressure" placeholder="Ej: 15"></div>
-        <button class="remove-room" onclick="removeRoom(this)">×</button>
-      </div>
+      <div class="cascade-room"><div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Zona llenado"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="CNC">CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="45"></div><div></div></div>
+      <div class="cascade-room"><div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Entorno B"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option><option value="D">D</option><option value="CNC">CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="30"></div><button class="remove-room" onclick="this.closest('.cascade-room').remove()">×</button></div>
+      <div class="cascade-room"><div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Esclusa"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D" selected>D</option><option value="CNC">CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="15"></div><button class="remove-room" onclick="this.closest('.cascade-room').remove()">×</button></div>
     </div>
     <button class="add-room-btn" onclick="addRoom()">+ Añadir sala</button>
-    <button class="calc-btn" onclick="checkCascade()">Verificar cascada de presiones</button>
-
+    <button class="calc-btn" onclick="checkCascade()">Verificar cascada</button>
     <div class="result-card" id="cascade-result">
-      <div class="result-card-header">📊 Resultado de la verificación</div>
+      <div class="result-card-header">📊 Verificación</div>
       <div class="result-card-body" id="cascade-result-body"></div>
       <div class="result-status" id="cascade-status"></div>
-      <div class="ref-note">
-        <strong>Referencia:</strong> EU GMP Annex 1 (2022), §4.3: Se debe mantener un diferencial de presión de 10-15 Pa entre salas adyacentes de diferente clasificación. La cascada debe ir de mayor a menor limpieza. ISPE Baseline Guide Vol. 3 recomienda monitorización continua de diferenciales de presión con alarmas.
+      <div class="ref-note"><strong>Ref:</strong> EU GMP Annex 1 (2022), §4.3: Diferencial mínimo 10-15 Pa entre zonas de diferente clasificación.</div>
+    </div>
+  </div></div>
+</div>
+
+<!-- TAB: EXCEL -->
+<div class="tab-panel" id="panel-excel">
+  <div class="tool-panel"><div class="tool-inner">
+    <div class="tool-header"><h2>Analizador de Excel / Schedule Revit</h2><p>Sube un Excel exportado de Revit (schedule de salas, equipos, HVAC) y el agente IA analizará los datos contra normativa GMP, verificará clasificaciones, presiones, ACH y acabados.</p></div>
+
+    <div id="upload-section">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-zone-icon">📁</div>
+        <h3>Arrastra tu archivo aquí o haz clic para seleccionar</h3>
+        <p>Formatos: .xlsx, .xls, .csv — Máximo 5 MB</p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
+      </div>
+
+      <div style="margin-top:20px">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">¿No tienes un archivo? Prueba con datos de ejemplo:</p>
+        <button class="calc-btn" style="font-size:12px;padding:10px 20px" onclick="loadSampleData()">Cargar datos de ejemplo</button>
+      </div>
+    </div>
+
+    <div id="data-section" style="display:none">
+      <div class="data-preview">
+        <div class="data-preview-header">
+          <h3 id="file-name">Datos cargados</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="data-preview-info" id="file-info"></span>
+            <button class="reset-btn" onclick="resetExcel()">× Quitar archivo</button>
+          </div>
+        </div>
+        <div class="data-table-wrap"><table class="data-table" id="data-table"></table></div>
+      </div>
+
+      <div class="analyze-section visible" id="analyze-section">
+        <p style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text-primary)">¿Qué análisis quieres realizar?</p>
+        <div class="analyze-options">
+          <button class="analyze-opt selected" data-type="full">Análisis GMP completo</button>
+          <button class="analyze-opt" data-type="pressure">Solo cascada de presiones</button>
+          <button class="analyze-opt" data-type="ach">Solo renovaciones de aire</button>
+          <button class="analyze-opt" data-type="finishes">Solo acabados</button>
+          <button class="analyze-opt" data-type="custom">Pregunta personalizada</button>
+        </div>
+        <div id="custom-prompt-section" style="display:none;margin-bottom:16px">
+          <textarea id="custom-prompt" class="form-input" rows="3" placeholder="Ej: Verifica si las salas de producción cumplen con los requisitos de EU GMP Annex 1 para fabricación de estériles..." style="font-size:13px"></textarea>
+        </div>
+        <button class="calc-btn" id="analyzeBtn" onclick="analyzeExcel()">🤖 Analizar con IA</button>
+      </div>
+
+      <div class="ai-analysis" id="ai-analysis">
+        <div class="ai-analysis-card">
+          <div class="ai-analysis-header">🤖 Análisis GxP Agent</div>
+          <div class="ai-analysis-body" id="ai-analysis-body"></div>
+        </div>
       </div>
     </div>
   </div></div>
@@ -326,8 +349,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 
 <script>
 /* ==================== TABS ==================== */
+const TAB_IDS=['chat','ach','cascade','excel'];
 function switchTab(id){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['chat','ach','cascade'][i]===id));
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   if(id==='chat')document.getElementById('userInput').focus();
@@ -335,111 +359,150 @@ function switchTab(id){
 
 /* ==================== CHAT ==================== */
 let conversationHistory=[],isStreaming=false;
-const SYSTEM_PROMPT=`Eres GxP Agent, un asistente de IA experto en ingeniería farmacéutica. Tu conocimiento abarca:
-NORMATIVAS: ISO 14644, EU GMP Annex 1 (2022), FDA 21 CFR 210/211, ISPE Baseline Guides, WHO TRS, ICH Q7/Q9/Q10, USP <797>/<800>, ASHRAE 170.
-ÁREAS: 1) Salas limpias (Grado A/B/C/D, layouts, esclusas, cascadas de presión) 2) HVAC farmacéutico (ACH, UTAs, HEPA, balances de aire) 3) Agua purificada (PW/WFI, loops, sanitización) 4) Acabados (epoxi, HPL, Ra ≤ 0.8 μm) 5) Utilidades (vapor limpio, gases, contención RABS/isolators) 6) Cualificación (DQ/IQ/OQ/PQ, mapeo térmico, integridad HEPA).
-FORMATO: Directo y técnico. Referencia secciones específicas de normativas. Usa tablas markdown. Alerta sobre incumplimientos. Responde en el idioma del usuario. Nivel consultor senior. Si no estás seguro, dilo.`;
+const SYS=`Eres GxP Agent, un asistente de IA experto en ingeniería farmacéutica. Normativas: ISO 14644, EU GMP Annex 1 (2022), FDA 21 CFR 210/211, ISPE Baseline Guides, WHO TRS, ICH Q7/Q9/Q10, USP <797>/<800>, ASHRAE 170. Áreas: Salas limpias (Grado A/B/C/D, layouts, esclusas, cascadas de presión), HVAC farmacéutico (ACH, UTAs, HEPA, balances de aire), Agua purificada (PW/WFI, loops, sanitización), Acabados (epoxi, HPL, Ra ≤ 0.8 μm), Utilidades (vapor limpio, gases, RABS/isolators), Cualificación (DQ/IQ/OQ/PQ, mapeo térmico, integridad HEPA). Formato: Directo y técnico. Referencia secciones específicas. Usa tablas markdown. Alerta incumplimientos. Nivel consultor senior.`;
+const QP={clasificacion:'¿Clasificaciones de salas limpias ISO 14644-1 y equivalencia EU GMP (A,B,C,D)? Incluye límites de partículas.',hvac:'Diseño HVAC para zona de inyectables estériles. Parámetros clave: ACH, presiones, temperatura, humedad.',agua:'Diferencias PW vs WFI según farmacopea. Parámetros críticos.',gmp:'Planta de sólidos orales: requisitos GMP para layout, flujos, clasificación y HVAC.',presiones:'Cascada de presiones en zona estéril. Diferencial mínimo según EU GMP Annex 1.',renovaciones:'ACH para cada grado de sala limpia (A,B,C,D) según EU GMP e ISPE.',acabados:'Acabados para sala Grado B. Rugosidad superficial.',tabla:'Tabla: Grado EU GMP, Clase ISO, partículas (≥0.5μm y ≥5μm) reposo/operación, ACH típicas.'};
 
-const QUICK_PROMPTS={clasificacion:'¿Cuáles son las clasificaciones de salas limpias según ISO 14644-1 y su equivalencia con los grados EU GMP (A, B, C, D)? Incluye los límites de partículas para cada clase.',hvac:'Necesito diseñar el sistema HVAC para una zona de fabricación de inyectables estériles. ¿Cuáles son los parámetros clave (renovaciones de aire, presiones, temperatura, humedad)?',agua:'Diferencias clave entre PW y WFI según farmacopea. Parámetros críticos de cada uno.',gmp:'Voy a diseñar una planta de sólidos orales. ¿Requisitos GMP principales para layout, flujos, clasificación y HVAC?',presiones:'¿Cómo diseñar la cascada de presiones en zona estéril? Diferencial mínimo según EU GMP Annex 1.',renovaciones:'¿Cuántas ACH para cada grado de sala limpia (A, B, C, D) según EU GMP e ISPE?',acabados:'Especificaciones de acabados para sala limpia Grado B. Rugosidad superficial.',tabla:'Tabla resumen: Grado EU GMP, Clase ISO, límites partículas (≥0.5μm y ≥5μm) en reposo y operación, ACH típicas.'};
-
-function sendQuickPrompt(id){document.getElementById('userInput').value=QUICK_PROMPTS[id];sendMessage()}
+function sendQuickPrompt(id){document.getElementById('userInput').value=QP[id];sendMessage()}
 async function sendMessage(){
   const input=document.getElementById('userInput'),text=input.value.trim();if(!text||isStreaming)return;
   document.getElementById('welcomeScreen').style.display='none';document.getElementById('messagesContainer').style.display='flex';
-  addMessage('user',text);input.value='';input.style.height='auto';
+  addMsg('user',text);input.value='';input.style.height='auto';
   conversationHistory.push({role:'user',content:text});
-  const typingEl=addTypingIndicator();isStreaming=true;document.getElementById('sendBtn').disabled=true;
-  try{
-    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:SYSTEM_PROMPT,messages:conversationHistory})});
-    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||e.error||`Error ${r.status}`)}
-    const data=await r.json(),t=data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-    typingEl.remove();addMessage('ai',t);conversationHistory.push({role:'assistant',content:t});
-  }catch(e){typingEl.remove();addMessage('ai',`⚠️ **Error:** ${e.message}`)}
+  const t=addTyping();isStreaming=true;document.getElementById('sendBtn').disabled=true;
+  try{const r=await callAPI(SYS,conversationHistory);t.remove();addMsg('ai',r);conversationHistory.push({role:'assistant',content:r})}
+  catch(e){t.remove();addMsg('ai',`⚠️ **Error:** ${e.message}`)}
   finally{isStreaming=false;document.getElementById('sendBtn').disabled=false;document.getElementById('userInput').focus()}
 }
-function addMessage(role,content){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className=`message ${role}`;d.innerHTML=`<div class="message-avatar">${role==='ai'?'GxP':'Tú'}</div><div class="message-content">${parseMarkdown(content)}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
-function addTypingIndicator(){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className='message ai';d.innerHTML=`<div class="message-avatar">GxP</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
-function parseMarkdown(t){let h=t.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^\|(.+)\|$/gm,m=>{const c=m.split('|').filter(c=>c.trim());if(c.every(c=>/^[\s-:]+$/.test(c)))return '';return '<tr>'+c.map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>'});h=h.replace(/((<tr>.*<\/tr>\s*)+)/g,'<table>$1</table>');h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((<li>.*<\/li>\s*)+)/g,'<ul>$1</ul>');h=h.split('\n\n').map(b=>{b=b.trim();if(!b)return '';if(b.startsWith('<'))return b;return `<p>${b.replace(/\n/g,'<br>')}</p>`}).join('');return h}
+function addMsg(role,content){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className=`message ${role}`;d.innerHTML=`<div class="message-avatar">${role==='ai'?'GxP':'Tú'}</div><div class="message-content">${md(content)}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
+function addTyping(){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className='message ai';d.innerHTML=`<div class="message-avatar">GxP</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
 function handleKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,150)+'px'}
 
-/* ==================== ACH CALCULATOR ==================== */
-const ACH_RANGES={A:{min:300,rec:'Flujo unidireccional 0.36-0.54 m/s',note:'Grado A requiere flujo unidireccional (laminar), no se expresa en ACH sino en velocidad de aire. 0.36-0.54 m/s según EU GMP Annex 1 §4.30. El valor de ACH es orientativo.'},B:{min:40,max:60,rec:'40-60 ACH',note:'EU GMP Annex 1 recomienda turbulento con alta renovación. ISPE sugiere ≥40 ACH como punto de partida.'},C:{min:20,max:40,rec:'20-40 ACH',note:'ISPE Baseline Guide Vol. 2 recomienda 20 ACH mínimo para Grado C. Valores típicos: 20-40 ACH.'},D:{min:10,max:20,rec:'10-20 ACH',note:'ISPE recomienda ≥10 ACH para Grado D. Valores típicos: 10-20 ACH.'},CNC:{min:6,max:15,rec:'6-15 ACH',note:'Zonas no clasificadas: 6-15 ACH según ASHRAE y buenas prácticas de ingeniería.'}};
-
-function updateAchRecommendation(){
-  const grade=document.getElementById('ach-grade').value;
-  const label=document.getElementById('ach-rec-label');
-  const input=document.getElementById('ach-target');
-  if(grade&&ACH_RANGES[grade]){label.textContent='(Rec: '+ACH_RANGES[grade].rec+')';if(!input.value){input.placeholder=grade==='A'?'Ej: 300':'Ej: '+ACH_RANGES[grade].min}}else{label.textContent=''}
+/* ==================== API CALL ==================== */
+async function callAPI(system,messages){
+  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system,messages})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||e.error||`Error ${r.status}`)}
+  const d=await r.json();return d.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
 }
 
-function calculateACH(){
-  const grade=document.getElementById('ach-grade').value;
-  const ach=parseFloat(document.getElementById('ach-target').value);
-  const l=parseFloat(document.getElementById('ach-length').value);
-  const w=parseFloat(document.getElementById('ach-width').value);
-  const h=parseFloat(document.getElementById('ach-height').value);
-  if(!grade||!ach||!l||!w||!h){alert('Completa todos los campos');return}
+/* ==================== MARKDOWN ==================== */
+function md(t){let h=t.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^\|(.+)\|$/gm,m=>{const c=m.split('|').filter(c=>c.trim());if(c.every(c=>/^[\s-:]+$/.test(c)))return '';return '<tr>'+c.map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>'});h=h.replace(/((<tr>.*<\/tr>\s*)+)/g,'<table>$1</table>');h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((<li>.*<\/li>\s*)+)/g,'<ul>$1</ul>');h=h.split('\n\n').map(b=>{b=b.trim();if(!b)return '';if(b.startsWith('<'))return b;return `<p>${b.replace(/\n/g,'<br>')}</p>`}).join('');return h}
 
-  const vol=l*w*h;const area=l*w;const flow=ach*vol;const flowCFM=(flow/1.699).toFixed(0);
+/* ==================== ACH ==================== */
+const ACH_R={A:{min:300,rec:'Flujo unidireccional 0.36-0.54 m/s',note:'Grado A: flujo unidireccional. EU GMP Annex 1 §4.30.'},B:{min:40,rec:'40-60 ACH',note:'ISPE ≥40 ACH. EU GMP Annex 1 recomienda alta renovación turbulenta.'},C:{min:20,rec:'20-40 ACH',note:'ISPE ≥20 ACH para Grado C.'},D:{min:10,rec:'10-20 ACH',note:'ISPE ≥10 ACH para Grado D.'},CNC:{min:6,rec:'6-15 ACH',note:'ASHRAE: 6-15 ACH zonas no clasificadas.'}};
+function updateAchRec(){const g=document.getElementById('ach-grade').value,l=document.getElementById('ach-rec-label');if(g&&ACH_R[g])l.textContent='(Rec: '+ACH_R[g].rec+')';else l.textContent=''}
+function calculateACH(){const g=document.getElementById('ach-grade').value,a=parseFloat(document.getElementById('ach-target').value),l=parseFloat(document.getElementById('ach-length').value),w=parseFloat(document.getElementById('ach-width').value),h=parseFloat(document.getElementById('ach-height').value);if(!g||!a||!l||!w||!h){alert('Completa todos los campos');return}const v=l*w*h,ar=l*w,f=a*v;document.getElementById('res-volume').textContent=v.toFixed(1);document.getElementById('res-area').textContent=ar.toFixed(1);document.getElementById('res-flow').textContent=f.toFixed(0);document.getElementById('res-flow-cfm').textContent='≈ '+(f/1.699).toFixed(0)+' CFM';document.getElementById('res-ach').textContent=a;const s=document.getElementById('ach-status'),r=ACH_R[g];if(a>=r.min){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cumple para Grado '+g+' ('+r.rec+')'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> Por debajo del mínimo para Grado '+g+'. Mín: '+r.min+' ACH'}document.getElementById('ach-ref-note').innerHTML='<strong>Ref:</strong> '+r.note;document.getElementById('ach-result').classList.add('visible')}
 
-  document.getElementById('res-volume').textContent=vol.toFixed(1);
-  document.getElementById('res-area').textContent=area.toFixed(1);
-  document.getElementById('res-flow').textContent=flow.toFixed(0);
-  document.getElementById('res-flow-cfm').textContent='≈ '+flowCFM+' CFM';
-  document.getElementById('res-ach').textContent=ach;
+/* ==================== CASCADE ==================== */
+const GR={A:4,B:3,C:2,D:1,CNC:0};
+function addRoom(){const c=document.getElementById('cascade-rooms'),d=document.createElement('div');d.className='cascade-room';d.innerHTML=`<div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Sala"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="CNC" selected>CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="0"></div><button class="remove-room" onclick="this.closest('.cascade-room').remove()">×</button>`;c.appendChild(d)}
+function checkCascade(){const rooms=[];document.querySelectorAll('.cascade-room').forEach(el=>{const n=el.querySelector('.cascade-name').value||'Sala '+(rooms.length+1),g=el.querySelector('.cascade-grade').value,p=parseFloat(el.querySelector('.cascade-pressure').value);if(!isNaN(p))rooms.push({name:n,grade:g,pressure:p,rank:GR[g]})});if(rooms.length<2){alert('Añade al menos 2 salas');return}rooms.sort((a,b)=>b.pressure-a.pressure);let ok=true,html='';rooms.forEach((r,i)=>{let dh='';if(i>0){const df=rooms[i-1].pressure-r.pressure,dg=rooms[i-1].rank!==r.rank;if(dg&&df<10){dh=`<span class="cascade-room-diff fail">ΔP ${df.toFixed(0)} Pa ❌</span>`;ok=false}else if(dg)dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa ✅</span>`;else dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa</span>`}html+=`<div class="cascade-result-room"><div><div class="cascade-room-name">${r.name}</div><div class="cascade-room-grade">Grado ${r.grade}</div></div><div style="display:flex;align-items:center;gap:12px">${dh}<div class="cascade-room-pressure">${r.pressure} Pa</div></div></div>`});document.getElementById('cascade-result-body').innerHTML=html;const s=document.getElementById('cascade-status');if(ok){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cascada cumple EU GMP Annex 1 §4.3'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> INCUMPLIMIENTO — Diferenciales <10 Pa detectados'}document.getElementById('cascade-result').classList.add('visible')}
 
-  const range=ACH_RANGES[grade];const statusEl=document.getElementById('ach-status');
-  if(ach>=range.min){statusEl.className='result-status pass';statusEl.innerHTML='<span class="status-icon">✅</span> ACH cumple con las recomendaciones para Grado '+grade+' ('+range.rec+')'}
-  else{statusEl.className='result-status fail';statusEl.innerHTML='<span class="status-icon">❌</span> ACH por debajo del mínimo recomendado para Grado '+grade+'. Mínimo: '+range.min+' ACH'}
-  document.getElementById('ach-ref-note').innerHTML='<strong>Referencia:</strong> '+range.note;
-  document.getElementById('ach-result').classList.add('visible');
-}
+/* ==================== EXCEL ANALYZER ==================== */
+let excelData=null,excelHeaders=[];
 
-/* ==================== PRESSURE CASCADE ==================== */
-const GRADE_RANK={A:4,B:3,C:2,D:1,CNC:0};
-
-function addRoom(){
-  const container=document.getElementById('cascade-rooms');const idx=container.children.length;
-  const div=document.createElement('div');div.className='cascade-room';div.dataset.idx=idx;
-  div.innerHTML=`<div class="form-group"><label class="form-label">Nombre de la sala</label><input type="text" class="form-input cascade-name" placeholder="Ej: Pasillo"></div><div class="form-group"><label class="form-label">Clasificación</label><select class="form-input form-select cascade-grade"><option value="A">Grado A</option><option value="B">Grado B</option><option value="C">Grado C</option><option value="D">Grado D</option><option value="CNC" selected>CNC / Pasillo</option></select></div><div class="form-group"><label class="form-label">Presión (Pa)</label><input type="number" class="form-input cascade-pressure" placeholder="Ej: 0"></div><button class="remove-room" onclick="removeRoom(this)">×</button>`;
-  container.appendChild(div);
-}
-
-function removeRoom(btn){btn.closest('.cascade-room').remove()}
-
-function checkCascade(){
-  const rooms=[];
-  document.querySelectorAll('.cascade-room').forEach(el=>{
-    const name=el.querySelector('.cascade-name').value||'Sala '+(rooms.length+1);
-    const grade=el.querySelector('.cascade-grade').value;
-    const pressure=parseFloat(el.querySelector('.cascade-pressure').value);
-    if(!isNaN(pressure))rooms.push({name,grade,pressure,rank:GRADE_RANK[grade]});
+// Drag & drop
+document.addEventListener('DOMContentLoaded',()=>{
+  const z=document.getElementById('uploadZone');
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')});
+  z.addEventListener('dragleave',()=>z.classList.remove('dragover'));
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])});
+  // Analyze options
+  document.querySelectorAll('.analyze-opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{document.querySelectorAll('.analyze-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('custom-prompt-section').style.display=btn.dataset.type==='custom'?'block':'none'});
   });
-  if(rooms.length<2){alert('Añade al menos 2 salas con presiones');return}
+  document.getElementById('userInput').focus();
+});
 
-  rooms.sort((a,b)=>b.pressure-a.pressure);
-  let allPass=true;let html='';
-  rooms.forEach((room,i)=>{
-    let diffHtml='';
-    if(i>0){
-      const diff=rooms[i-1].pressure-room.pressure;
-      const adjDiffGrade=rooms[i-1].rank!==room.rank;
-      if(adjDiffGrade&&diff<10){diffHtml=`<span class="cascade-room-diff fail">ΔP ${diff.toFixed(0)} Pa — ❌ &lt;10 Pa</span>`;allPass=false}
-      else if(adjDiffGrade){diffHtml=`<span class="cascade-room-diff pass">ΔP ${diff.toFixed(0)} Pa — ✅</span>`}
-      else{diffHtml=`<span class="cascade-room-diff pass">ΔP ${diff.toFixed(0)} Pa (mismo grado)</span>`}
-    }
-    html+=`<div class="cascade-result-room"><div><div class="cascade-room-name">${room.name}</div><div class="cascade-room-grade">Grado ${room.grade}</div></div><div style="display:flex;align-items:center;gap:12px">${diffHtml}<div class="cascade-room-pressure">${room.pressure} Pa</div></div></div>`;
-  });
-
-  document.getElementById('cascade-result-body').innerHTML=html;
-  const statusEl=document.getElementById('cascade-status');
-  if(allPass){statusEl.className='result-status pass';statusEl.innerHTML='<span class="status-icon">✅</span> Cascada de presiones cumple con EU GMP Annex 1 §4.3 — Todos los diferenciales ≥10 Pa entre zonas de diferente clasificación'}
-  else{statusEl.className='result-status fail';statusEl.innerHTML='<span class="status-icon">❌</span> INCUMPLIMIENTO — Existen diferenciales <10 Pa entre zonas de diferente clasificación. Revisar diseño según EU GMP Annex 1 §4.3'}
-  document.getElementById('cascade-result').classList.add('visible');
+function handleFile(file){
+  if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(!['xlsx','xls','csv'].includes(ext)){alert('Formato no soportado. Usa .xlsx, .xls o .csv');return}
+  if(file.size>5*1024*1024){alert('Archivo demasiado grande. Máximo 5 MB.');return}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!json.length){alert('El archivo está vacío o no tiene datos');return}
+      excelHeaders=Object.keys(json[0]);
+      excelData=json;
+      displayData(file.name,json);
+    }catch(err){alert('Error leyendo archivo: '+err.message)}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-document.addEventListener('DOMContentLoaded',()=>document.getElementById('userInput').focus());
+function loadSampleData(){
+  excelHeaders=['ID_Sala','Nombre','Departamento','Clasificación_GMP','Clasificación_ISO','Presión_Pa','ACH','Temp_°C','HR_%','Superficie_m2','Altura_m','Suelo','Paredes','Techo'];
+  excelData=[
+    {ID_Sala:'S-101',Nombre:'Zona llenado',Departamento:'Producción Estéril',Clasificación_GMP:'A',Clasificación_ISO:'ISO 5',Presión_Pa:45,ACH:400,['Temp_°C']:'20 ± 2',['HR_%']:'45 ± 5',['Superficie_m2']:25,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Acero inox 316L',Techo:'Acero inox 316L'},
+    {ID_Sala:'S-102',Nombre:'Entorno aséptico',Departamento:'Producción Estéril',Clasificación_GMP:'B',Clasificación_ISO:'ISO 5/7',Presión_Pa:30,ACH:45,['Temp_°C']:'20 ± 2',['HR_%']:'45 ± 5',['Superficie_m2']:60,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
+    {ID_Sala:'S-103',Nombre:'Preparación soluciones',Departamento:'Producción Estéril',Clasificación_GMP:'C',Clasificación_ISO:'ISO 7/8',Presión_Pa:20,ACH:25,['Temp_°C']:'22 ± 2',['HR_%']:'50 ± 10',['Superficie_m2']:40,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
+    {ID_Sala:'S-104',Nombre:'Lavado material',Departamento:'Producción Estéril',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:10,ACH:15,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:35,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
+    {ID_Sala:'S-105',Nombre:'Esclusa personal',Departamento:'Producción Estéril',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:15,ACH:12,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:8,Altura_m:2.7,Suelo:'Epoxi',Paredes:'Panel sandwich',Techo:'Panel sandwich'},
+    {ID_Sala:'S-106',Nombre:'Pasillo técnico',Departamento:'General',Clasificación_GMP:'CNC',Clasificación_ISO:'-',Presión_Pa:5,ACH:8,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:45,Altura_m:3.0,Suelo:'Vinilo',Paredes:'Pintura epoxi',Techo:'Falso techo registrable'},
+    {ID_Sala:'S-201',Nombre:'Granulación',Departamento:'Sólidos Orales',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:-10,ACH:18,['Temp_°C']:'22 ± 2',['HR_%']:'40 ± 10',['Superficie_m2']:55,Altura_m:3.2,Suelo:'Epoxi antideslizante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
+    {ID_Sala:'S-202',Nombre:'Compresión',Departamento:'Sólidos Orales',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:-15,ACH:7,['Temp_°C']:'22 ± 2',['HR_%']:'40 ± 10',['Superficie_m2']:50,Altura_m:3.2,Suelo:'Epoxi',Paredes:'Panel sandwich',Techo:'Panel sandwich'},
+  ];
+  displayData('Datos de ejemplo (8 salas)',excelData);
+}
+
+function displayData(name,data){
+  document.getElementById('upload-section').style.display='none';
+  document.getElementById('data-section').style.display='block';
+  document.getElementById('file-name').textContent=name;
+  document.getElementById('file-info').textContent=data.length+' filas × '+excelHeaders.length+' columnas';
+  let html='<thead><tr>'+excelHeaders.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
+  data.forEach(row=>{html+='<tr>'+excelHeaders.map(h=>'<td>'+(row[h]!==undefined?row[h]:'')+'</td>').join('')+'</tr>'});
+  html+='</tbody>';
+  document.getElementById('data-table').innerHTML=html;
+  document.getElementById('ai-analysis').classList.remove('visible');
+}
+
+function resetExcel(){
+  excelData=null;excelHeaders=[];
+  document.getElementById('upload-section').style.display='block';
+  document.getElementById('data-section').style.display='none';
+  document.getElementById('fileInput').value='';
+}
+
+async function analyzeExcel(){
+  if(!excelData)return;
+  const type=document.querySelector('.analyze-opt.selected')?.dataset.type||'full';
+  const btn=document.getElementById('analyzeBtn');
+  btn.disabled=true;btn.textContent='Analizando...';
+
+  const analysisEl=document.getElementById('ai-analysis');
+  const bodyEl=document.getElementById('ai-analysis-body');
+  analysisEl.classList.add('visible');
+  bodyEl.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Analizando datos contra normativa GMP...</div>';
+
+  // Build data summary for Claude
+  let dataStr='DATOS DEL SCHEDULE DE SALAS:\n\nColumnas: '+excelHeaders.join(', ')+'\n\n';
+  excelData.forEach((row,i)=>{dataStr+='Fila '+(i+1)+': '+excelHeaders.map(h=>h+'='+row[h]).join(' | ')+'\n'});
+
+  const prompts={
+    full:`Analiza estos datos de un schedule de salas exportado de Revit contra normativa GMP. Verifica:\n1. Clasificaciones (coherencia entre GMP y ISO)\n2. Cascada de presiones (diferenciales ≥10-15 Pa entre zonas de diferente grado)\n3. Renovaciones de aire (ACH adecuado para cada grado)\n4. Condiciones ambientales (temperatura y humedad)\n5. Acabados (adecuados para la clasificación)\n\nPara cada punto, indica ✅ si cumple o ❌ si detectas un incumplimiento, con la referencia normativa específica.\n\nAl final, proporciona un RESUMEN con el número de observaciones críticas, mayores y menores.\n\n${dataStr}`,
+    pressure:`Analiza SOLO la cascada de presiones de estos datos. Verifica que los diferenciales entre salas adyacentes de diferente clasificación sean ≥10-15 Pa según EU GMP Annex 1 §4.3. Identifica incumplimientos.\n\n${dataStr}`,
+    ach:`Analiza SOLO las renovaciones de aire (ACH) de estos datos. Verifica que cada sala tenga ACH adecuado para su clasificación según ISPE y EU GMP. Identifica incumplimientos.\n\n${dataStr}`,
+    finishes:`Analiza SOLO los acabados (suelos, paredes, techos) de estos datos. Verifica que sean adecuados para la clasificación GMP de cada sala. Considera rugosidad superficial, lavabilidad, resistencia química.\n\n${dataStr}`,
+    custom:document.getElementById('custom-prompt')?.value+'\n\n'+dataStr||dataStr
+  };
+
+  try{
+    const result=await callAPI(
+      'Eres GxP Agent, un consultor senior de ingeniería farmacéutica. Analiza datos de schedules de Revit contra normativa GMP (EU GMP Annex 1, ISO 14644, ISPE, FDA). Sé riguroso, cita secciones específicas de normativas, y usa formato claro con ✅ y ❌ para indicar cumplimiento.',
+      [{role:'user',content:prompts[type]}]
+    );
+    bodyEl.innerHTML=md(result);
+  }catch(e){
+    bodyEl.innerHTML=`<p style="color:var(--error)">⚠️ Error: ${e.message}</p>`;
+  }finally{
+    btn.disabled=false;btn.textContent='🤖 Analizar con IA';
+  }
+}
 </script>
 </body>
 </html>
