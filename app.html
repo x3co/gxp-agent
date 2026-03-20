@@ -283,8 +283,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
   </div></div>
 </div>
 
-<!-- Hidden PDF render area -->
-<div class="pdf-render" id="pdf-render"></div>
 <script>
 /* ==================== TABS ==================== */
 const TAB_IDS=['chat','ach','cascade','excel','docs'];
@@ -448,16 +446,42 @@ INSTRUCCIONES DE FORMATO:
 
 function downloadPDF(){
   if(!lastDocContent)return;
-  const render=document.getElementById('pdf-render');
   const project=document.getElementById('doc-project').value||'Documento';
   const client=document.getElementById('doc-client').value||'';
+  const location=document.getElementById('doc-location').value||'';
   const date=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  const docTitle=selectedDocType?DOC_TITLES[selectedDocType]:'Documento Técnico';
 
-  render.innerHTML=`<div class="pdf-header"><h1>GxP Agent</h1><p>Documento técnico generado por IA</p></div>${md(lastDocContent)}<div class="pdf-footer">Generado por GxP Agent — ${date} — Este documento es un borrador generado por IA y debe ser revisado por un profesional cualificado antes de su uso.</div>`;
+  // Create a temporary visible element for html2pdf
+  const container=document.createElement('div');
+  container.style.cssText='position:fixed;top:0;left:0;width:700px;background:#fff;z-index:9999;padding:40px;font-family:DM Sans,Arial,sans-serif;color:#1A2332;font-size:12px;line-height:1.6;overflow:visible;';
+  container.innerHTML=`
+    <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #003DA6">
+      <div style="font-size:24px;font-weight:800;color:#003DA6;margin-bottom:4px">GxP Agent</div>
+      <div style="font-size:18px;font-weight:700;color:#1A2332;margin-bottom:4px">${docTitle}</div>
+      <div style="font-size:12px;color:#5A6B7D">${project}${client?' — '+client:''}${location?' — '+location:''}</div>
+      <div style="font-size:11px;color:#8A97A8;margin-top:4px">${date}</div>
+    </div>
+    <div class="pdf-render">${md(lastDocContent)}</div>
+    <div style="margin-top:24px;padding-top:12px;border-top:1px solid #E2E8F0;font-size:10px;color:#8A97A8;text-align:center">
+      Generado por GxP Agent — ${date}<br>Este documento es un borrador generado por IA y debe ser revisado por un profesional cualificado antes de su uso.
+    </div>`;
+  document.body.appendChild(container);
 
-  const opt={margin:[15,15,20,15],filename:project.replace(/[^a-zA-Z0-9]/g,'_')+'_GxPAgent.pdf',image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  const opt={
+    margin:[10,10,15,10],
+    filename:(project.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ ]/g,'_').replace(/ /g,'_'))+'_GxPAgent.pdf',
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,scrollY:0,windowWidth:700},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['avoid-all','css','legacy']}
+  };
 
-  html2pdf().set(opt).from(render).save().then(()=>{render.innerHTML=''});
+  html2pdf().set(opt).from(container).save().then(()=>{
+    document.body.removeChild(container);
+  }).catch(()=>{
+    document.body.removeChild(container);
+  });
 }
 
 /* ==================== INIT ==================== */
