@@ -6,217 +6,94 @@
 <title>GxP Agent — AI para Ingeniería Farmacéutica</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-:root{
-  --bg-white:#FFFFFF;--bg-light:#F4F7FB;--bg-soft:#EAF0F8;
-  --blue-dark:#003DA6;--blue-mid:#1A5FBF;--blue-light:#40B4E5;
-  --blue-pale:#E8F4FB;--blue-wash:#F0F6FE;
-  --gradient-main:linear-gradient(135deg,#003DA6,#40B4E5);
-  --text-primary:#1A2332;--text-secondary:#5A6B7D;--text-muted:#8A97A8;
-  --border:#E2E8F0;--border-blue:#C8DCF0;
-  --success:#0F9B6E;--warning:#D97706;--error:#DC4A4A;
-  --radius:12px;--radius-sm:8px;
-  --shadow-sm:0 1px 3px rgba(0,61,166,0.04);--shadow-md:0 4px 16px rgba(0,61,166,0.07);
-}
+:root{--bg-white:#FFFFFF;--bg-light:#F4F7FB;--bg-soft:#EAF0F8;--blue-dark:#003DA6;--blue-mid:#1A5FBF;--blue-light:#40B4E5;--blue-pale:#E8F4FB;--blue-wash:#F0F6FE;--gradient-main:linear-gradient(135deg,#003DA6,#40B4E5);--text-primary:#1A2332;--text-secondary:#5A6B7D;--text-muted:#8A97A8;--border:#E2E8F0;--border-blue:#C8DCF0;--success:#0F9B6E;--warning:#D97706;--error:#DC4A4A;--radius:12px;--radius-sm:8px;--shadow-sm:0 1px 3px rgba(0,61,166,0.04);--shadow-md:0 4px 16px rgba(0,61,166,0.07)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--text-primary);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-/* HEADER */
 .header{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;background:var(--bg-white);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
 .header-left{display:flex;align-items:center;gap:12px}
 .logo-mark{width:34px;height:34px;background:var(--blue-dark);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff}
-.logo-text h1{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2}
-.logo-text span{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:500}
+.logo-text h1{font-size:15px;font-weight:700;line-height:1.2}.logo-text span{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:500}
 .header-right{display:flex;align-items:center;gap:12px}
-.back-link{color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;padding:5px 10px;border-radius:6px;border:1px solid var(--border);transition:all .2s}
-.back-link:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
+.back-link{color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;padding:5px 10px;border-radius:6px;border:1px solid var(--border);transition:all .2s}.back-link:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
 .status-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:16px;background:rgba(15,155,110,0.06);border:1px solid rgba(15,155,110,0.15);font-size:11px;color:var(--success);font-weight:500}
 .status-dot{width:5px;height:5px;border-radius:50%;background:var(--success);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* TABS */
-.tabs-bar{display:flex;background:var(--bg-white);border-bottom:1px solid var(--border);padding:0 24px;flex-shrink:0;gap:0;overflow-x:auto}
-.tabs-bar::-webkit-scrollbar{height:0}
-.tab-btn{padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.tab-btn:hover{color:var(--text-primary);background:var(--bg-light)}
-.tab-btn.active{color:var(--blue-dark);border-bottom-color:var(--blue-dark)}
-.tab-btn .tab-icon{font-size:15px}
-
-/* TAB PANELS */
-.tab-panel{flex:1;display:none;flex-direction:column;overflow:hidden}
-.tab-panel.active{display:flex}
-
-/* CHAT */
-.messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;background:var(--bg-light)}
-.messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:transparent}.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-.message{display:flex;gap:10px;max-width:82%;animation:fadeIn .3s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.message.user{align-self:flex-end;flex-direction:row-reverse}
-.message-avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
-.message.ai .message-avatar{background:var(--blue-dark);color:#fff}
-.message.user .message-avatar{background:var(--blue-pale);color:var(--blue-dark);border:1px solid var(--border-blue)}
-.message-content{padding:14px 18px;border-radius:var(--radius);font-size:14px;line-height:1.7}
-.message.ai .message-content{background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
-.message.user .message-content{background:var(--blue-pale);border:1px solid var(--border-blue)}
-.message-content p{margin-bottom:8px}.message-content p:last-child{margin-bottom:0}
-.message-content strong{color:var(--blue-dark);font-weight:600}
-.message-content code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}
-.message-content ul,.message-content ol{margin:8px 0;padding-left:20px}.message-content li{margin-bottom:4px}
-.message-content pre{background:var(--bg-light);padding:12px;border-radius:var(--radius-sm);overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border)}
-.message-content table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
-.message-content td,.message-content th{padding:6px 10px;border:1px solid var(--border);text-align:left}
-.message-content tr:nth-child(even){background:var(--bg-light)}
-.message-content h3,.message-content h4{color:var(--blue-dark);margin:12px 0 6px}
-.typing-indicator{display:flex;gap:4px;padding:8px 0}
-.typing-indicator span{width:7px;height:7px;border-radius:50%;background:var(--blue-light);animation:typing 1.4s ease-in-out infinite}
-.typing-indicator span:nth-child(2){animation-delay:.2s}.typing-indicator span:nth-child(3){animation-delay:.4s}
-@keyframes typing{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
-.input-area{padding:14px 24px 18px;background:var(--bg-white);border-top:1px solid var(--border);flex-shrink:0}
-.input-wrapper{display:flex;gap:10px;align-items:flex-end;max-width:860px;margin:0 auto}
-.input-wrapper textarea{flex:1;padding:11px 16px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;resize:none;outline:none;min-height:44px;max-height:150px;transition:border-color .2s}
-.input-wrapper textarea:focus{border-color:var(--blue-dark);box-shadow:0 0 0 3px rgba(0,61,166,0.08)}
-.input-wrapper textarea::placeholder{color:var(--text-muted)}
-.send-btn{width:44px;height:44px;background:var(--blue-dark);border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s;flex-shrink:0}
-.send-btn:hover{transform:scale(1.05)}.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.send-btn svg{width:18px;height:18px;fill:#fff}
-.quick-actions{display:flex;gap:6px;padding:0 24px 10px;flex-wrap:wrap;max-width:860px;margin:0 auto;width:100%}
-.quick-btn{padding:6px 12px;background:var(--bg-white);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.quick-btn:hover{background:var(--blue-pale);border-color:var(--border-blue);color:var(--blue-dark)}
-.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;background:var(--bg-light)}
-.welcome-icon{width:60px;height:60px;background:var(--blue-dark);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,61,166,0.2)}
-.welcome h2{font-size:22px;font-weight:700;margin-bottom:8px}
-.welcome>p{color:var(--text-secondary);font-size:14px;max-width:460px;line-height:1.6;margin-bottom:24px}
-.welcome-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;max-width:620px;width:100%}
-.welcome-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:left;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
-.welcome-card:hover{border-color:var(--border-blue);background:var(--blue-pale);transform:translateY(-2px)}
-.welcome-card .card-icon{font-size:18px;margin-bottom:6px}
-.welcome-card h4{font-size:12px;font-weight:600;margin-bottom:3px}
-.welcome-card p{font-size:11px;color:var(--text-muted);margin-bottom:0;line-height:1.4}
-
-/* TOOL PANELS */
-.tool-panel{flex:1;overflow-y:auto;padding:32px 24px;background:var(--bg-light)}
-.tool-inner{max-width:720px;margin:0 auto}
-.tool-header{margin-bottom:28px}
-.tool-header h2{font-size:22px;font-weight:800;margin-bottom:6px}
-.tool-header p{font-size:14px;color:var(--text-secondary);line-height:1.6}
-.form-group{margin-bottom:20px}
-.form-label{display:block;font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:6px}
-.form-sublabel{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.form-input{width:100%;padding:11px 14px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-primary);outline:none;transition:border-color .2s}
-.form-input:focus{border-color:var(--blue-dark);box-shadow:0 0 0 3px rgba(0,61,166,0.08)}
-.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A97A8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.calc-btn{padding:13px 32px;background:var(--blue-dark);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:8px}
-.calc-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,61,166,0.25)}
-.calc-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-/* Results */
-.result-card{display:none;margin-top:28px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}
-.result-card.visible{display:block;animation:fadeIn .3s ease-out}
-.result-card-header{padding:16px 20px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
-.result-card-body{padding:20px}
-.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.result-item{padding:16px;background:var(--bg-light);border-radius:var(--radius-sm);border:1px solid var(--border)}
-.result-item.highlight{background:var(--blue-pale);border-color:var(--border-blue)}
-.result-item-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;color:var(--text-muted);margin-bottom:4px}
-.result-item-value{font-size:24px;font-weight:800;color:var(--blue-dark)}
-.result-item-unit{font-size:13px;font-weight:500;color:var(--text-secondary);margin-left:2px}
-.result-item-note{font-size:11px;color:var(--text-muted);margin-top:4px}
-.result-status{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--border);font-size:13px;font-weight:600}
-.result-status.pass{background:rgba(15,155,110,0.04);color:var(--success)}
-.result-status.warn{background:rgba(217,119,6,0.04);color:var(--warning)}
-.result-status.fail{background:rgba(220,74,74,0.04);color:var(--error)}
-.status-icon{font-size:16px}
+.tabs-bar{display:flex;background:var(--bg-white);border-bottom:1px solid var(--border);padding:0 24px;flex-shrink:0;overflow-x:auto}.tabs-bar::-webkit-scrollbar{height:0}
+.tab-btn{padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--text-muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.tab-btn:hover{color:var(--text-primary);background:var(--bg-light)}.tab-btn.active{color:var(--blue-dark);border-bottom-color:var(--blue-dark)}.tab-btn .tab-icon{font-size:14px}
+.tab-panel{flex:1;display:none;flex-direction:column;overflow:hidden}.tab-panel.active{display:flex}
+.messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;background:var(--bg-light)}.messages::-webkit-scrollbar{width:5px}.messages::-webkit-scrollbar-track{background:transparent}.messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.message{display:flex;gap:10px;max-width:82%;animation:fadeIn .3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.message.user{align-self:flex-end;flex-direction:row-reverse}
+.message-avatar{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}.message.ai .message-avatar{background:var(--blue-dark);color:#fff}.message.user .message-avatar{background:var(--blue-pale);color:var(--blue-dark);border:1px solid var(--border-blue)}
+.message-content{padding:14px 18px;border-radius:var(--radius);font-size:14px;line-height:1.7}.message.ai .message-content{background:var(--bg-white);border:1px solid var(--border);box-shadow:var(--shadow-sm)}.message.user .message-content{background:var(--blue-pale);border:1px solid var(--border-blue)}
+.message-content p{margin-bottom:8px}.message-content p:last-child{margin-bottom:0}.message-content strong{color:var(--blue-dark);font-weight:600}.message-content code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}.message-content ul,.message-content ol{margin:8px 0;padding-left:20px}.message-content li{margin-bottom:4px}.message-content pre{background:var(--bg-light);padding:12px;border-radius:var(--radius-sm);overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border)}.message-content table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}.message-content td,.message-content th{padding:6px 10px;border:1px solid var(--border);text-align:left}.message-content tr:nth-child(even){background:var(--bg-light)}.message-content h3,.message-content h4{color:var(--blue-dark);margin:12px 0 6px}
+.typing-indicator{display:flex;gap:4px;padding:8px 0}.typing-indicator span{width:7px;height:7px;border-radius:50%;background:var(--blue-light);animation:typing 1.4s ease-in-out infinite}.typing-indicator span:nth-child(2){animation-delay:.2s}.typing-indicator span:nth-child(3){animation-delay:.4s}@keyframes typing{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1)}}
+.input-area{padding:14px 24px 18px;background:var(--bg-white);border-top:1px solid var(--border);flex-shrink:0}.input-wrapper{display:flex;gap:10px;align-items:flex-end;max-width:860px;margin:0 auto}.input-wrapper textarea{flex:1;padding:11px 16px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;resize:none;outline:none;min-height:44px;max-height:150px;transition:border-color .2s;color:var(--text-primary)}.input-wrapper textarea:focus{border-color:var(--blue-dark);box-shadow:0 0 0 3px rgba(0,61,166,0.08)}.input-wrapper textarea::placeholder{color:var(--text-muted)}
+.send-btn{width:44px;height:44px;background:var(--blue-dark);border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,opacity .15s;flex-shrink:0}.send-btn:hover{transform:scale(1.05)}.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}.send-btn svg{width:18px;height:18px;fill:#fff}
+.quick-actions{display:flex;gap:6px;padding:0 24px 10px;flex-wrap:wrap;max-width:860px;margin:0 auto;width:100%}.quick-btn{padding:6px 12px;background:var(--bg-white);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}.quick-btn:hover{background:var(--blue-pale);border-color:var(--border-blue);color:var(--blue-dark)}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;background:var(--bg-light)}.welcome-icon{width:60px;height:60px;background:var(--blue-dark);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,61,166,0.2)}.welcome h2{font-size:22px;font-weight:700;margin-bottom:8px}.welcome>p{color:var(--text-secondary);font-size:14px;max-width:460px;line-height:1.6;margin-bottom:24px}.welcome-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;max-width:620px;width:100%}.welcome-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:left;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}.welcome-card:hover{border-color:var(--border-blue);background:var(--blue-pale);transform:translateY(-2px)}.welcome-card .card-icon{font-size:18px;margin-bottom:6px}.welcome-card h4{font-size:12px;font-weight:600;margin-bottom:3px}.welcome-card p{font-size:11px;color:var(--text-muted);margin-bottom:0;line-height:1.4}
+/* Tools shared */
+.tool-panel{flex:1;overflow-y:auto;padding:32px 24px;background:var(--bg-light)}.tool-inner{max-width:720px;margin:0 auto}.tool-header{margin-bottom:28px}.tool-header h2{font-size:22px;font-weight:800;margin-bottom:6px}.tool-header p{font-size:14px;color:var(--text-secondary);line-height:1.6}
+.form-group{margin-bottom:20px}.form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}.form-sublabel{font-size:11px;color:var(--text-muted);font-weight:400;margin-left:4px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.form-input{width:100%;padding:11px 14px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-primary);outline:none;transition:border-color .2s}.form-input:focus{border-color:var(--blue-dark);box-shadow:0 0 0 3px rgba(0,61,166,0.08)}.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A97A8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.calc-btn{padding:13px 32px;background:var(--blue-dark);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:8px}.calc-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,61,166,0.25)}.calc-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result-card{display:none;margin-top:28px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}.result-card.visible{display:block;animation:fadeIn .3s ease-out}.result-card-header{padding:16px 20px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}.result-card-body{padding:20px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.result-item{padding:16px;background:var(--bg-light);border-radius:var(--radius-sm);border:1px solid var(--border)}.result-item.highlight{background:var(--blue-pale);border-color:var(--border-blue)}.result-item-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;color:var(--text-muted);margin-bottom:4px}.result-item-value{font-size:24px;font-weight:800;color:var(--blue-dark)}.result-item-unit{font-size:13px;font-weight:500;color:var(--text-secondary);margin-left:2px}.result-item-note{font-size:11px;color:var(--text-muted);margin-top:4px}
+.result-status{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--border);font-size:13px;font-weight:600}.result-status.pass{background:rgba(15,155,110,0.04);color:var(--success)}.result-status.warn{background:rgba(217,119,6,0.04);color:var(--warning)}.result-status.fail{background:rgba(220,74,74,0.04);color:var(--error)}.status-icon{font-size:16px}
 .ref-note{margin-top:16px;padding:12px;background:var(--bg-light);border-radius:var(--radius-sm);border-left:3px solid var(--blue-dark);font-size:12px;color:var(--text-secondary);line-height:1.6}
-
 /* Cascade */
-.cascade-room{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:grid;grid-template-columns:2fr 1.5fr 1fr 40px;gap:12px;align-items:end}
-.cascade-room .form-group{margin-bottom:0}
-.remove-room{width:36px;height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text-muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.remove-room:hover{border-color:var(--error);color:var(--error)}
-.add-room-btn{padding:10px;border:2px dashed var(--border);border-radius:var(--radius);background:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:16px;width:100%}
-.add-room-btn:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
-.cascade-result-room{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
-.cascade-result-room:last-child{border-bottom:none}
-.cascade-room-name{font-weight:600;font-size:14px}
-.cascade-room-grade{font-size:12px;color:var(--text-muted)}
-.cascade-room-pressure{font-size:18px;font-weight:800;color:var(--blue-dark)}
-.cascade-room-diff{font-size:12px;padding:3px 8px;border-radius:12px;font-weight:600}
-.cascade-room-diff.pass{background:rgba(15,155,110,0.08);color:var(--success)}
-.cascade-room-diff.fail{background:rgba(220,74,74,0.08);color:var(--error)}
-
-/* EXCEL UPLOAD */
-.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-white)}
-.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue-dark);background:var(--blue-pale)}
-.upload-zone-icon{font-size:40px;margin-bottom:12px}
-.upload-zone h3{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text-primary)}
-.upload-zone p{font-size:13px;color:var(--text-muted)}
-.upload-zone input{display:none}
-
-.data-preview{margin-top:20px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
-.data-preview-header{padding:12px 16px;background:var(--bg-light);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.data-preview-header h3{font-size:14px;font-weight:700}
-.data-preview-info{font-size:12px;color:var(--text-muted)}
-.data-table-wrap{overflow-x:auto;max-height:300px;overflow-y:auto}
-.data-table{width:100%;border-collapse:collapse;font-size:12px}
-.data-table th{padding:8px 12px;background:var(--blue-dark);color:#fff;font-weight:600;text-align:left;position:sticky;top:0;z-index:1;white-space:nowrap}
-.data-table td{padding:7px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
-.data-table tr:nth-child(even){background:var(--bg-light)}
-.data-table tr:hover{background:var(--blue-pale)}
-
-.analyze-section{margin-top:20px;display:none}
-.analyze-section.visible{display:block}
-.analyze-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.analyze-opt{padding:8px 16px;background:var(--bg-white);border:1px solid var(--border);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text-secondary)}
-.analyze-opt:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
-.analyze-opt.selected{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
-
-.ai-analysis{margin-top:20px;display:none}
-.ai-analysis.visible{display:block}
-.ai-analysis-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}
-.ai-analysis-header{padding:14px 20px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
-.ai-analysis-body{padding:20px;font-size:14px;line-height:1.7}
-.ai-analysis-body strong{color:var(--blue-dark)}
-.ai-analysis-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
-.ai-analysis-body td,.ai-analysis-body th{padding:6px 10px;border:1px solid var(--border);text-align:left}
-.ai-analysis-body tr:nth-child(even){background:var(--bg-light)}
-.ai-analysis-body ul,.ai-analysis-body ol{margin:8px 0;padding-left:20px}
-.ai-analysis-body li{margin-bottom:4px}
-.ai-analysis-body h3,.ai-analysis-body h4{color:var(--blue-dark);margin:14px 0 6px}
-.ai-analysis-body pre{background:var(--bg-light);padding:12px;border-radius:var(--radius-sm);overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border)}
-.ai-analysis-body code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}
-
-.loading-analysis{display:flex;align-items:center;gap:10px;padding:20px;color:var(--text-secondary);font-size:14px}
-.loading-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue-dark);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.reset-btn{padding:8px 16px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.reset-btn:hover{border-color:var(--error);color:var(--error)}
-
-@media(max-width:640px){
-  .header{padding:10px 16px}.tabs-bar{padding:0 12px}.tab-btn{padding:10px 12px;font-size:12px}
-  .messages{padding:16px}.input-area{padding:12px 16px 16px}.quick-actions{padding:0 16px 8px}
-  .message{max-width:95%}.welcome-cards{grid-template-columns:1fr}
-  .tool-panel{padding:24px 16px}.form-row,.form-row-3{grid-template-columns:1fr}
-  .result-grid{grid-template-columns:1fr}.cascade-room{grid-template-columns:1fr}
-}
+.cascade-room{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:grid;grid-template-columns:2fr 1.5fr 1fr 40px;gap:12px;align-items:end}.cascade-room .form-group{margin-bottom:0}
+.remove-room{width:36px;height:36px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-white);color:var(--text-muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}.remove-room:hover{border-color:var(--error);color:var(--error)}
+.add-room-btn{padding:10px;border:2px dashed var(--border);border-radius:var(--radius);background:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:16px;width:100%}.add-room-btn:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}
+.cascade-result-room{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}.cascade-result-room:last-child{border-bottom:none}.cascade-room-name{font-weight:600;font-size:14px}.cascade-room-grade{font-size:12px;color:var(--text-muted)}.cascade-room-pressure{font-size:18px;font-weight:800;color:var(--blue-dark)}.cascade-room-diff{font-size:12px;padding:3px 8px;border-radius:12px;font-weight:600}.cascade-room-diff.pass{background:rgba(15,155,110,0.08);color:var(--success)}.cascade-room-diff.fail{background:rgba(220,74,74,0.08);color:var(--error)}
+/* Excel */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-white)}.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue-dark);background:var(--blue-pale)}.upload-zone-icon{font-size:40px;margin-bottom:12px}.upload-zone h3{font-size:16px;font-weight:700;margin-bottom:6px}.upload-zone p{font-size:13px;color:var(--text-muted)}.upload-zone input{display:none}
+.data-preview{margin-top:20px;background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}.data-preview-header{padding:12px 16px;background:var(--bg-light);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.data-preview-header h3{font-size:14px;font-weight:700}.data-preview-info{font-size:12px;color:var(--text-muted)}.data-table-wrap{overflow-x:auto;max-height:300px;overflow-y:auto}.data-table{width:100%;border-collapse:collapse;font-size:12px}.data-table th{padding:8px 12px;background:var(--blue-dark);color:#fff;font-weight:600;text-align:left;position:sticky;top:0;z-index:1;white-space:nowrap}.data-table td{padding:7px 12px;border-bottom:1px solid var(--border);white-space:nowrap}.data-table tr:nth-child(even){background:var(--bg-light)}.data-table tr:hover{background:var(--blue-pale)}
+.analyze-section{margin-top:20px;display:none}.analyze-section.visible{display:block}.analyze-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.analyze-opt{padding:8px 16px;background:var(--bg-white);border:1px solid var(--border);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text-secondary)}.analyze-opt:hover{border-color:var(--blue-dark);color:var(--blue-dark);background:var(--blue-pale)}.analyze-opt.selected{background:var(--blue-dark);color:#fff;border-color:var(--blue-dark)}
+.ai-analysis{margin-top:20px;display:none}.ai-analysis.visible{display:block}.ai-analysis-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)}.ai-analysis-header{padding:14px 20px;background:var(--blue-dark);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;justify-content:space-between}.ai-analysis-body{padding:20px;font-size:14px;line-height:1.7}.ai-analysis-body strong{color:var(--blue-dark)}.ai-analysis-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}.ai-analysis-body td,.ai-analysis-body th{padding:6px 10px;border:1px solid var(--border);text-align:left}.ai-analysis-body tr:nth-child(even){background:var(--bg-light)}.ai-analysis-body ul,.ai-analysis-body ol{margin:8px 0;padding-left:20px}.ai-analysis-body li{margin-bottom:4px}.ai-analysis-body h3,.ai-analysis-body h4{color:var(--blue-dark);margin:14px 0 6px}.ai-analysis-body pre{background:var(--bg-light);padding:12px;border-radius:var(--radius-sm);overflow-x:auto;margin:8px 0;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border)}.ai-analysis-body code{font-family:'JetBrains Mono',monospace;background:var(--blue-pale);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--blue-dark)}
+.loading-analysis{display:flex;align-items:center;gap:10px;padding:20px;color:var(--text-secondary);font-size:14px}.loading-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue-dark);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.reset-btn{padding:8px 16px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.reset-btn:hover{border-color:var(--error);color:var(--error)}
+/* Docs generator */
+.doc-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.doc-type-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+.doc-type-card:hover{border-color:var(--border-blue);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.doc-type-card.selected{border-color:var(--blue-dark);background:var(--blue-pale);box-shadow:0 0 0 2px var(--blue-dark)}
+.doc-type-card .doc-icon{font-size:24px;margin-bottom:8px}
+.doc-type-card h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.doc-type-card p{font-size:12px;color:var(--text-muted);line-height:1.4}
+.doc-form{display:none;margin-top:8px}.doc-form.visible{display:block}
+.pdf-download-btn{padding:12px 28px;background:var(--success);border:none;border-radius:var(--radius-sm);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s;margin-left:8px}.pdf-download-btn:hover{transform:translateY(-1px)}
+/* PDF render area (hidden, used for html2pdf) */
+.pdf-render{position:absolute;left:-9999px;top:0;width:700px;font-family:'DM Sans',sans-serif;color:#1A2332;font-size:12px;line-height:1.6;background:#fff;padding:40px}
+.pdf-render h1{font-size:20px;color:#003DA6;border-bottom:2px solid #003DA6;padding-bottom:8px;margin-bottom:16px}
+.pdf-render h2{font-size:16px;color:#003DA6;margin:20px 0 8px;border-bottom:1px solid #E2E8F0;padding-bottom:4px}
+.pdf-render h3{font-size:14px;color:#1A5FBF;margin:14px 0 6px}
+.pdf-render h4{font-size:13px;color:#1A5FBF;margin:12px 0 4px}
+.pdf-render table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11px}
+.pdf-render td,.pdf-render th{padding:5px 8px;border:1px solid #E2E8F0;text-align:left}
+.pdf-render th{background:#003DA6;color:#fff;font-weight:600}
+.pdf-render tr:nth-child(even){background:#F4F7FB}
+.pdf-render ul,.pdf-render ol{margin:6px 0;padding-left:18px}
+.pdf-render li{margin-bottom:3px}
+.pdf-render .pdf-header{text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #003DA6}
+.pdf-render .pdf-header h1{border:none;padding:0;margin:0;font-size:22px}
+.pdf-render .pdf-header p{color:#5A6B7D;font-size:12px;margin-top:4px}
+.pdf-render .pdf-footer{margin-top:24px;padding-top:12px;border-top:1px solid #E2E8F0;font-size:10px;color:#8A97A8;text-align:center}
+.pdf-render strong{color:#003DA6}
+@media(max-width:640px){.header{padding:10px 16px}.tabs-bar{padding:0 12px}.tab-btn{padding:10px 10px;font-size:11px}.messages{padding:16px}.input-area{padding:12px 16px 16px}.quick-actions{padding:0 16px 8px}.message{max-width:95%}.welcome-cards{grid-template-columns:1fr}.tool-panel{padding:24px 16px}.form-row,.form-row-3{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.cascade-room{grid-template-columns:1fr}.doc-type-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-left"><div class="logo-mark">GxP</div><div class="logo-text"><h1>GxP Agent</h1><span>Pharma Engineering AI</span></div></div>
-  <div class="header-right"><a href="index.html" class="back-link">← Inicio</a><div class="status-pill"><div class="status-dot"></div>Online</div></div>
-</div>
-
+<div class="header"><div class="header-left"><div class="logo-mark">GxP</div><div class="logo-text"><h1>GxP Agent</h1><span>Pharma Engineering AI</span></div></div><div class="header-right"><a href="index.html" class="back-link">← Inicio</a><div class="status-pill"><div class="status-dot"></div>Online</div></div></div>
 <div class="tabs-bar">
   <button class="tab-btn active" onclick="switchTab('chat')"><span class="tab-icon">💬</span> Chat IA</button>
-  <button class="tab-btn" onclick="switchTab('ach')"><span class="tab-icon">💨</span> Calculadora ACH</button>
-  <button class="tab-btn" onclick="switchTab('cascade')"><span class="tab-icon">📊</span> Cascada Presiones</button>
+  <button class="tab-btn" onclick="switchTab('ach')"><span class="tab-icon">💨</span> Calc. ACH</button>
+  <button class="tab-btn" onclick="switchTab('cascade')"><span class="tab-icon">📊</span> Presiones</button>
   <button class="tab-btn" onclick="switchTab('excel')"><span class="tab-icon">📁</span> Analizar Excel</button>
+  <button class="tab-btn" onclick="switchTab('docs')"><span class="tab-icon">📄</span> Generar Documento</button>
 </div>
-
 <!-- TAB: CHAT -->
 <div class="tab-panel active" id="panel-chat">
   <div class="welcome" id="welcomeScreen">
@@ -242,13 +119,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
     <button class="send-btn" id="sendBtn" onclick="sendMessage()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
   </div></div>
 </div>
-
 <!-- TAB: ACH -->
 <div class="tab-panel" id="panel-ach">
   <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header"><h2>Calculadora de Renovaciones de Aire (ACH)</h2><p>Calcula las renovaciones de aire por hora y el caudal necesario según clasificación. Basado en ISPE Baseline Guide Vol. 2 y EU GMP Annex 1.</p></div>
+    <div class="tool-header"><h2>Calculadora de Renovaciones de Aire (ACH)</h2><p>Calcula ACH y caudal según clasificación. Basado en ISPE Vol. 2 y EU GMP Annex 1.</p></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Clasificación de la sala</label><select id="ach-grade" class="form-input form-select" onchange="updateAchRec()"><option value="">Seleccionar...</option><option value="A">Grado A (ISO 5)</option><option value="B">Grado B (ISO 5/7)</option><option value="C">Grado C (ISO 7/8)</option><option value="D">Grado D (ISO 8)</option><option value="CNC">CNC / Almacén</option></select></div>
+      <div class="form-group"><label class="form-label">Clasificación</label><select id="ach-grade" class="form-input form-select" onchange="updateAchRec()"><option value="">Seleccionar...</option><option value="A">Grado A (ISO 5)</option><option value="B">Grado B (ISO 5/7)</option><option value="C">Grado C (ISO 7/8)</option><option value="D">Grado D (ISO 8)</option><option value="CNC">CNC</option></select></div>
       <div class="form-group"><label class="form-label">ACH objetivo <span class="form-sublabel" id="ach-rec-label"></span></label><input type="number" id="ach-target" class="form-input" placeholder="Ej: 20"></div>
     </div>
     <div class="form-row-3">
@@ -258,10 +134,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
     </div>
     <button class="calc-btn" onclick="calculateACH()">Calcular renovaciones de aire</button>
     <div class="result-card" id="ach-result">
-      <div class="result-card-header">💨 Resultado del cálculo</div>
+      <div class="result-card-header">💨 Resultado</div>
       <div class="result-card-body"><div class="result-grid">
         <div class="result-item"><div class="result-item-label">Volumen</div><div><span class="result-item-value" id="res-volume">—</span><span class="result-item-unit">m³</span></div></div>
-        <div class="result-item highlight"><div class="result-item-label">Caudal necesario</div><div><span class="result-item-value" id="res-flow">—</span><span class="result-item-unit">m³/h</span></div><div class="result-item-note" id="res-flow-cfm"></div></div>
+        <div class="result-item highlight"><div class="result-item-label">Caudal</div><div><span class="result-item-value" id="res-flow">—</span><span class="result-item-unit">m³/h</span></div><div class="result-item-note" id="res-flow-cfm"></div></div>
         <div class="result-item"><div class="result-item-label">ACH</div><div><span class="result-item-value" id="res-ach">—</span><span class="result-item-unit">ren/h</span></div></div>
         <div class="result-item"><div class="result-item-label">Superficie</div><div><span class="result-item-value" id="res-area">—</span><span class="result-item-unit">m²</span></div></div>
       </div></div>
@@ -270,11 +146,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
     </div>
   </div></div>
 </div>
-
 <!-- TAB: CASCADE -->
 <div class="tab-panel" id="panel-cascade">
   <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header"><h2>Verificador de Cascada de Presiones</h2><p>Define salas con clasificación y presión. Verifica diferenciales según EU GMP Annex 1 (mínimo 10-15 Pa).</p></div>
+    <div class="tool-header"><h2>Verificador de Cascada de Presiones</h2><p>Define salas con clasificación y presión. Verifica diferenciales según EU GMP Annex 1 §4.3.</p></div>
     <div id="cascade-rooms">
       <div class="cascade-room"><div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Zona llenado"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="CNC">CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="45"></div><div></div></div>
       <div class="cascade-room"><div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Entorno B"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B" selected>B</option><option value="C">C</option><option value="D">D</option><option value="CNC">CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="30"></div><button class="remove-room" onclick="this.closest('.cascade-room').remove()">×</button></div>
@@ -286,223 +161,314 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
       <div class="result-card-header">📊 Verificación</div>
       <div class="result-card-body" id="cascade-result-body"></div>
       <div class="result-status" id="cascade-status"></div>
-      <div class="ref-note"><strong>Ref:</strong> EU GMP Annex 1 (2022), §4.3: Diferencial mínimo 10-15 Pa entre zonas de diferente clasificación.</div>
+      <div class="ref-note"><strong>Ref:</strong> EU GMP Annex 1 (2022) §4.3: Diferencial mínimo 10-15 Pa.</div>
     </div>
   </div></div>
 </div>
-
 <!-- TAB: EXCEL -->
 <div class="tab-panel" id="panel-excel">
   <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header"><h2>Analizador de Excel / Schedule Revit</h2><p>Sube un Excel exportado de Revit (schedule de salas, equipos, HVAC) y el agente IA analizará los datos contra normativa GMP, verificará clasificaciones, presiones, ACH y acabados.</p></div>
-
+    <div class="tool-header"><h2>Analizador de Excel / Schedule Revit</h2><p>Sube un Excel exportado de Revit y el agente IA analizará los datos contra normativa GMP.</p></div>
     <div id="upload-section">
       <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
         <div class="upload-zone-icon">📁</div>
-        <h3>Arrastra tu archivo aquí o haz clic para seleccionar</h3>
-        <p>Formatos: .xlsx, .xls, .csv — Máximo 5 MB</p>
+        <h3>Arrastra tu archivo aquí o haz clic</h3>
+        <p>.xlsx, .xls, .csv — Máx 5 MB</p>
         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="handleFile(this.files[0])">
       </div>
-
-      <div style="margin-top:20px">
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">¿No tienes un archivo? Prueba con datos de ejemplo:</p>
-        <button class="calc-btn" style="font-size:12px;padding:10px 20px" onclick="loadSampleData()">Cargar datos de ejemplo</button>
-      </div>
+      <div style="margin-top:20px"><p style="font-size:13px;color:var(--text-muted);margin-bottom:10px">¿No tienes archivo? Prueba con datos de ejemplo:</p><button class="calc-btn" style="font-size:12px;padding:10px 20px" onclick="loadSampleData()">Cargar datos de ejemplo</button></div>
     </div>
-
     <div id="data-section" style="display:none">
       <div class="data-preview">
-        <div class="data-preview-header">
-          <h3 id="file-name">Datos cargados</h3>
-          <div style="display:flex;gap:8px;align-items:center">
-            <span class="data-preview-info" id="file-info"></span>
-            <button class="reset-btn" onclick="resetExcel()">× Quitar archivo</button>
-          </div>
-        </div>
+        <div class="data-preview-header"><h3 id="file-name">Datos</h3><div style="display:flex;gap:8px;align-items:center"><span class="data-preview-info" id="file-info"></span><button class="reset-btn" onclick="resetExcel()">× Quitar</button></div></div>
         <div class="data-table-wrap"><table class="data-table" id="data-table"></table></div>
       </div>
-
       <div class="analyze-section visible" id="analyze-section">
-        <p style="font-size:13px;font-weight:600;margin-bottom:10px;color:var(--text-primary)">¿Qué análisis quieres realizar?</p>
+        <p style="font-size:13px;font-weight:600;margin-bottom:10px">¿Qué análisis quieres?</p>
         <div class="analyze-options">
           <button class="analyze-opt selected" data-type="full">Análisis GMP completo</button>
-          <button class="analyze-opt" data-type="pressure">Solo cascada de presiones</button>
-          <button class="analyze-opt" data-type="ach">Solo renovaciones de aire</button>
-          <button class="analyze-opt" data-type="finishes">Solo acabados</button>
-          <button class="analyze-opt" data-type="custom">Pregunta personalizada</button>
+          <button class="analyze-opt" data-type="pressure">Cascada presiones</button>
+          <button class="analyze-opt" data-type="ach">Renovaciones aire</button>
+          <button class="analyze-opt" data-type="finishes">Acabados</button>
+          <button class="analyze-opt" data-type="custom">Personalizado</button>
         </div>
-        <div id="custom-prompt-section" style="display:none;margin-bottom:16px">
-          <textarea id="custom-prompt" class="form-input" rows="3" placeholder="Ej: Verifica si las salas de producción cumplen con los requisitos de EU GMP Annex 1 para fabricación de estériles..." style="font-size:13px"></textarea>
-        </div>
+        <div id="custom-prompt-section" style="display:none;margin-bottom:16px"><textarea id="custom-prompt" class="form-input" rows="3" placeholder="Ej: Verifica si las salas cumplen EU GMP Annex 1..." style="font-size:13px"></textarea></div>
         <button class="calc-btn" id="analyzeBtn" onclick="analyzeExcel()">🤖 Analizar con IA</button>
       </div>
-
       <div class="ai-analysis" id="ai-analysis">
         <div class="ai-analysis-card">
-          <div class="ai-analysis-header">🤖 Análisis GxP Agent</div>
+          <div class="ai-analysis-header"><span>🤖 Análisis GxP Agent</span></div>
           <div class="ai-analysis-body" id="ai-analysis-body"></div>
         </div>
       </div>
     </div>
   </div></div>
 </div>
+<!-- TAB: DOCS -->
+<div class="tab-panel" id="panel-docs">
+  <div class="tool-panel"><div class="tool-inner">
+    <div class="tool-header"><h2>Generador de Documentos Técnicos</h2><p>Selecciona el tipo de documento, completa los datos de tu proyecto, y GxP Agent generará un borrador profesional descargable en PDF.</p></div>
 
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px">Selecciona el tipo de documento:</p>
+    <div class="doc-type-grid">
+      <div class="doc-type-card" onclick="selectDocType('hvac_memoria')" data-doc="hvac_memoria">
+        <div class="doc-icon">💨</div>
+        <h4>Memoria Técnica HVAC</h4>
+        <p>Documento completo de diseño HVAC: criterios, cálculos, especificaciones de equipos, balances de aire.</p>
+      </div>
+      <div class="doc-type-card" onclick="selectDocType('cleanroom_criteria')" data-doc="cleanroom_criteria">
+        <div class="doc-icon">🏗️</div>
+        <h4>Criterios de Diseño Sala Limpia</h4>
+        <p>Especificaciones de clasificación, acabados, condiciones ambientales, presiones y flujos.</p>
+      </div>
+      <div class="doc-type-card" onclick="selectDocType('water_spec')" data-doc="water_spec">
+        <div class="doc-icon">💧</div>
+        <h4>Especificación Funcional Agua</h4>
+        <p>Diseño de sistema PW/WFI: generación, almacenamiento, distribución, puntos de uso, sanitización.</p>
+      </div>
+      <div class="doc-type-card" onclick="selectDocType('gmp_report')" data-doc="gmp_report">
+        <div class="doc-icon">📋</div>
+        <h4>Informe Verificación GMP</h4>
+        <p>Análisis de cumplimiento normativo de un área o proyecto contra EU GMP, FDA, ISPE.</p>
+      </div>
+      <div class="doc-type-card" onclick="selectDocType('iq_oq')" data-doc="iq_oq">
+        <div class="doc-icon">✅</div>
+        <h4>Protocolo Cualificación IQ/OQ</h4>
+        <p>Base de protocolo de cualificación de instalación y operación para sistemas HVAC, agua o salas.</p>
+      </div>
+    </div>
+
+    <!-- Document form -->
+    <div class="doc-form" id="doc-form">
+      <div style="background:var(--blue-pale);border:1px solid var(--border-blue);border-radius:var(--radius);padding:16px;margin-bottom:20px">
+        <p style="font-size:13px;font-weight:700;color:var(--blue-dark);margin-bottom:4px" id="doc-form-title">Documento seleccionado</p>
+        <p style="font-size:12px;color:var(--text-secondary)" id="doc-form-desc">Completa los datos de tu proyecto para generar el documento.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nombre del proyecto</label>
+        <input type="text" id="doc-project" class="form-input" placeholder="Ej: Planta de Inyectables Laboratorio XYZ">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cliente / Empresa</label>
+          <input type="text" id="doc-client" class="form-input" placeholder="Ej: Laboratorios ABC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ubicación</label>
+          <input type="text" id="doc-location" class="form-input" placeholder="Ej: Bogotá, Colombia">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción del alcance / contexto</label>
+        <textarea id="doc-scope" class="form-input" rows="4" placeholder="Describe el proyecto, las áreas involucradas, tipo de producto farmacéutico, número de salas, sistemas principales..." style="font-size:13px;resize:vertical"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Requisitos adicionales <span class="form-sublabel">(opcional)</span></label>
+        <textarea id="doc-extra" class="form-input" rows="2" placeholder="Normativas específicas, requisitos del cliente, estándares internos..." style="font-size:13px;resize:vertical"></textarea>
+      </div>
+      <button class="calc-btn" id="generateDocBtn" onclick="generateDocument()">📄 Generar documento</button>
+    </div>
+
+    <!-- Generated document -->
+    <div class="ai-analysis" id="doc-output">
+      <div class="ai-analysis-card">
+        <div class="ai-analysis-header">
+          <span>📄 Documento generado</span>
+          <button class="pdf-download-btn" onclick="downloadPDF()">⬇ Descargar PDF</button>
+        </div>
+        <div class="ai-analysis-body" id="doc-output-body"></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Hidden PDF render area -->
+<div class="pdf-render" id="pdf-render"></div>
 <script>
 /* ==================== TABS ==================== */
-const TAB_IDS=['chat','ach','cascade','excel'];
-function switchTab(id){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  if(id==='chat')document.getElementById('userInput').focus();
-}
+const TAB_IDS=['chat','ach','cascade','excel','docs'];
+function switchTab(id){document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+id).classList.add('active');if(id==='chat')document.getElementById('userInput').focus()}
+
+/* ==================== API ==================== */
+async function callAPI(system,messages){const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system,messages})});if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||e.error||`Error ${r.status}`)}const d=await r.json();return d.content.filter(b=>b.type==='text').map(b=>b.text).join('\n')}
+
+/* ==================== MARKDOWN ==================== */
+function md(t){let h=t.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/^#### (.+)$/gm,'<h4>$1</h4>').replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^# (.+)$/gm,'<h2>$1</h2>').replace(/^\|(.+)\|$/gm,m=>{const c=m.split('|').filter(c=>c.trim());if(c.every(c=>/^[\s-:]+$/.test(c)))return '';return '<tr>'+c.map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>'});h=h.replace(/((<tr>.*<\/tr>\s*)+)/g,'<table>$1</table>');h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((<li>.*<\/li>\s*)+)/g,'<ul>$1</ul>');h=h.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');h=h.split('\n\n').map(b=>{b=b.trim();if(!b)return '';if(b.startsWith('<'))return b;return `<p>${b.replace(/\n/g,'<br>')}</p>`}).join('');return h}
 
 /* ==================== CHAT ==================== */
 let conversationHistory=[],isStreaming=false;
-const SYS=`Eres GxP Agent, un asistente de IA experto en ingeniería farmacéutica. Normativas: ISO 14644, EU GMP Annex 1 (2022), FDA 21 CFR 210/211, ISPE Baseline Guides, WHO TRS, ICH Q7/Q9/Q10, USP <797>/<800>, ASHRAE 170. Áreas: Salas limpias (Grado A/B/C/D, layouts, esclusas, cascadas de presión), HVAC farmacéutico (ACH, UTAs, HEPA, balances de aire), Agua purificada (PW/WFI, loops, sanitización), Acabados (epoxi, HPL, Ra ≤ 0.8 μm), Utilidades (vapor limpio, gases, RABS/isolators), Cualificación (DQ/IQ/OQ/PQ, mapeo térmico, integridad HEPA). Formato: Directo y técnico. Referencia secciones específicas. Usa tablas markdown. Alerta incumplimientos. Nivel consultor senior.`;
-const QP={clasificacion:'¿Clasificaciones de salas limpias ISO 14644-1 y equivalencia EU GMP (A,B,C,D)? Incluye límites de partículas.',hvac:'Diseño HVAC para zona de inyectables estériles. Parámetros clave: ACH, presiones, temperatura, humedad.',agua:'Diferencias PW vs WFI según farmacopea. Parámetros críticos.',gmp:'Planta de sólidos orales: requisitos GMP para layout, flujos, clasificación y HVAC.',presiones:'Cascada de presiones en zona estéril. Diferencial mínimo según EU GMP Annex 1.',renovaciones:'ACH para cada grado de sala limpia (A,B,C,D) según EU GMP e ISPE.',acabados:'Acabados para sala Grado B. Rugosidad superficial.',tabla:'Tabla: Grado EU GMP, Clase ISO, partículas (≥0.5μm y ≥5μm) reposo/operación, ACH típicas.'};
-
+const SYS='Eres GxP Agent, experto en ingeniería farmacéutica. Normativas: ISO 14644, EU GMP Annex 1 (2022), FDA 21 CFR 210/211, ISPE, WHO TRS, ICH Q7/Q9/Q10, USP <797>/<800>, ASHRAE 170. Áreas: Salas limpias, HVAC, Agua PW/WFI, Acabados, Utilidades, Cualificación. Formato: Directo, técnico, con referencias normativas. Nivel consultor senior.';
+const QP={clasificacion:'Clasificaciones salas limpias ISO 14644-1 y equivalencia EU GMP (A,B,C,D) con límites de partículas.',hvac:'Diseño HVAC para inyectables estériles: ACH, presiones, temperatura, humedad.',agua:'Diferencias PW vs WFI. Parámetros críticos.',gmp:'Planta sólidos orales: requisitos GMP layout, flujos, clasificación, HVAC.',presiones:'Cascada presiones zona estéril. Diferencial mínimo EU GMP Annex 1.',renovaciones:'ACH por grado sala limpia según EU GMP e ISPE.',acabados:'Acabados sala Grado B. Rugosidad superficial.',tabla:'Tabla: Grado EU GMP, Clase ISO, partículas reposo/operación, ACH típicas.'};
 function sendQuickPrompt(id){document.getElementById('userInput').value=QP[id];sendMessage()}
-async function sendMessage(){
-  const input=document.getElementById('userInput'),text=input.value.trim();if(!text||isStreaming)return;
-  document.getElementById('welcomeScreen').style.display='none';document.getElementById('messagesContainer').style.display='flex';
-  addMsg('user',text);input.value='';input.style.height='auto';
-  conversationHistory.push({role:'user',content:text});
-  const t=addTyping();isStreaming=true;document.getElementById('sendBtn').disabled=true;
-  try{const r=await callAPI(SYS,conversationHistory);t.remove();addMsg('ai',r);conversationHistory.push({role:'assistant',content:r})}
-  catch(e){t.remove();addMsg('ai',`⚠️ **Error:** ${e.message}`)}
-  finally{isStreaming=false;document.getElementById('sendBtn').disabled=false;document.getElementById('userInput').focus()}
-}
-function addMsg(role,content){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className=`message ${role}`;d.innerHTML=`<div class="message-avatar">${role==='ai'?'GxP':'Tú'}</div><div class="message-content">${md(content)}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight}
-function addTyping(){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className='message ai';d.innerHTML=`<div class="message-avatar">GxP</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
+async function sendMessage(){const input=document.getElementById('userInput'),text=input.value.trim();if(!text||isStreaming)return;document.getElementById('welcomeScreen').style.display='none';document.getElementById('messagesContainer').style.display='flex';addMsg('user',text);input.value='';input.style.height='auto';conversationHistory.push({role:'user',content:text});const t=addTyping();isStreaming=true;document.getElementById('sendBtn').disabled=true;try{const r=await callAPI(SYS,conversationHistory);t.remove();addMsg('ai',r);conversationHistory.push({role:'assistant',content:r})}catch(e){t.remove();addMsg('ai',`⚠️ **Error:** ${e.message}`)}finally{isStreaming=false;document.getElementById('sendBtn').disabled=false;document.getElementById('userInput').focus()}}
+function addMsg(role,c){const el=document.getElementById('messagesContainer'),d=document.createElement('div');d.className=`message ${role}`;d.innerHTML=`<div class="message-avatar">${role==='ai'?'GxP':'Tú'}</div><div class="message-content">${md(c)}</div>`;el.appendChild(d);el.scrollTop=el.scrollHeight}
+function addTyping(){const c=document.getElementById('messagesContainer'),d=document.createElement('div');d.className='message ai';d.innerHTML='<div class="message-avatar">GxP</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';c.appendChild(d);c.scrollTop=c.scrollHeight;return d}
 function handleKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,150)+'px'}
 
-/* ==================== API CALL ==================== */
-async function callAPI(system,messages){
-  const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system,messages})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||e.error||`Error ${r.status}`)}
-  const d=await r.json();return d.content.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-}
-
-/* ==================== MARKDOWN ==================== */
-function md(t){let h=t.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/^### (.+)$/gm,'<h4>$1</h4>').replace(/^## (.+)$/gm,'<h3>$1</h3>').replace(/^\|(.+)\|$/gm,m=>{const c=m.split('|').filter(c=>c.trim());if(c.every(c=>/^[\s-:]+$/.test(c)))return '';return '<tr>'+c.map(c=>`<td>${c.trim()}</td>`).join('')+'</tr>'});h=h.replace(/((<tr>.*<\/tr>\s*)+)/g,'<table>$1</table>');h=h.replace(/^- (.+)$/gm,'<li>$1</li>');h=h.replace(/((<li>.*<\/li>\s*)+)/g,'<ul>$1</ul>');h=h.split('\n\n').map(b=>{b=b.trim();if(!b)return '';if(b.startsWith('<'))return b;return `<p>${b.replace(/\n/g,'<br>')}</p>`}).join('');return h}
-
 /* ==================== ACH ==================== */
-const ACH_R={A:{min:300,rec:'Flujo unidireccional 0.36-0.54 m/s',note:'Grado A: flujo unidireccional. EU GMP Annex 1 §4.30.'},B:{min:40,rec:'40-60 ACH',note:'ISPE ≥40 ACH. EU GMP Annex 1 recomienda alta renovación turbulenta.'},C:{min:20,rec:'20-40 ACH',note:'ISPE ≥20 ACH para Grado C.'},D:{min:10,rec:'10-20 ACH',note:'ISPE ≥10 ACH para Grado D.'},CNC:{min:6,rec:'6-15 ACH',note:'ASHRAE: 6-15 ACH zonas no clasificadas.'}};
-function updateAchRec(){const g=document.getElementById('ach-grade').value,l=document.getElementById('ach-rec-label');if(g&&ACH_R[g])l.textContent='(Rec: '+ACH_R[g].rec+')';else l.textContent=''}
-function calculateACH(){const g=document.getElementById('ach-grade').value,a=parseFloat(document.getElementById('ach-target').value),l=parseFloat(document.getElementById('ach-length').value),w=parseFloat(document.getElementById('ach-width').value),h=parseFloat(document.getElementById('ach-height').value);if(!g||!a||!l||!w||!h){alert('Completa todos los campos');return}const v=l*w*h,ar=l*w,f=a*v;document.getElementById('res-volume').textContent=v.toFixed(1);document.getElementById('res-area').textContent=ar.toFixed(1);document.getElementById('res-flow').textContent=f.toFixed(0);document.getElementById('res-flow-cfm').textContent='≈ '+(f/1.699).toFixed(0)+' CFM';document.getElementById('res-ach').textContent=a;const s=document.getElementById('ach-status'),r=ACH_R[g];if(a>=r.min){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cumple para Grado '+g+' ('+r.rec+')'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> Por debajo del mínimo para Grado '+g+'. Mín: '+r.min+' ACH'}document.getElementById('ach-ref-note').innerHTML='<strong>Ref:</strong> '+r.note;document.getElementById('ach-result').classList.add('visible')}
+const ACH_R={A:{min:300,rec:'Flujo unidireccional 0.36-0.54 m/s',note:'Grado A: flujo unidireccional. EU GMP Annex 1 §4.30.'},B:{min:40,rec:'40-60 ACH',note:'ISPE ≥40 ACH.'},C:{min:20,rec:'20-40 ACH',note:'ISPE ≥20 ACH.'},D:{min:10,rec:'10-20 ACH',note:'ISPE ≥10 ACH.'},CNC:{min:6,rec:'6-15 ACH',note:'ASHRAE 6-15 ACH.'}};
+function updateAchRec(){const g=document.getElementById('ach-grade').value;document.getElementById('ach-rec-label').textContent=g&&ACH_R[g]?'(Rec: '+ACH_R[g].rec+')':''}
+function calculateACH(){const g=document.getElementById('ach-grade').value,a=parseFloat(document.getElementById('ach-target').value),l=parseFloat(document.getElementById('ach-length').value),w=parseFloat(document.getElementById('ach-width').value),h=parseFloat(document.getElementById('ach-height').value);if(!g||!a||!l||!w||!h){alert('Completa todos los campos');return}const v=l*w*h,ar=l*w,f=a*v;document.getElementById('res-volume').textContent=v.toFixed(1);document.getElementById('res-area').textContent=ar.toFixed(1);document.getElementById('res-flow').textContent=f.toFixed(0);document.getElementById('res-flow-cfm').textContent='≈ '+(f/1.699).toFixed(0)+' CFM';document.getElementById('res-ach').textContent=a;const s=document.getElementById('ach-status'),r=ACH_R[g];if(a>=r.min){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cumple Grado '+g+' ('+r.rec+')'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> Bajo mín. Grado '+g+'. Mín: '+r.min}document.getElementById('ach-ref-note').innerHTML='<strong>Ref:</strong> '+r.note;document.getElementById('ach-result').classList.add('visible')}
 
 /* ==================== CASCADE ==================== */
 const GR={A:4,B:3,C:2,D:1,CNC:0};
-function addRoom(){const c=document.getElementById('cascade-rooms'),d=document.createElement('div');d.className='cascade-room';d.innerHTML=`<div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Sala"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="CNC" selected>CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="0"></div><button class="remove-room" onclick="this.closest('.cascade-room').remove()">×</button>`;c.appendChild(d)}
-function checkCascade(){const rooms=[];document.querySelectorAll('.cascade-room').forEach(el=>{const n=el.querySelector('.cascade-name').value||'Sala '+(rooms.length+1),g=el.querySelector('.cascade-grade').value,p=parseFloat(el.querySelector('.cascade-pressure').value);if(!isNaN(p))rooms.push({name:n,grade:g,pressure:p,rank:GR[g]})});if(rooms.length<2){alert('Añade al menos 2 salas');return}rooms.sort((a,b)=>b.pressure-a.pressure);let ok=true,html='';rooms.forEach((r,i)=>{let dh='';if(i>0){const df=rooms[i-1].pressure-r.pressure,dg=rooms[i-1].rank!==r.rank;if(dg&&df<10){dh=`<span class="cascade-room-diff fail">ΔP ${df.toFixed(0)} Pa ❌</span>`;ok=false}else if(dg)dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa ✅</span>`;else dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa</span>`}html+=`<div class="cascade-result-room"><div><div class="cascade-room-name">${r.name}</div><div class="cascade-room-grade">Grado ${r.grade}</div></div><div style="display:flex;align-items:center;gap:12px">${dh}<div class="cascade-room-pressure">${r.pressure} Pa</div></div></div>`});document.getElementById('cascade-result-body').innerHTML=html;const s=document.getElementById('cascade-status');if(ok){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cascada cumple EU GMP Annex 1 §4.3'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> INCUMPLIMIENTO — Diferenciales <10 Pa detectados'}document.getElementById('cascade-result').classList.add('visible')}
+function addRoom(){const c=document.getElementById('cascade-rooms'),d=document.createElement('div');d.className='cascade-room';d.innerHTML='<div class="form-group"><label class="form-label">Nombre</label><input type="text" class="form-input cascade-name" placeholder="Sala"></div><div class="form-group"><label class="form-label">Grado</label><select class="form-input form-select cascade-grade"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="CNC" selected>CNC</option></select></div><div class="form-group"><label class="form-label">Pa</label><input type="number" class="form-input cascade-pressure" placeholder="0"></div><button class="remove-room" onclick="this.closest(\'.cascade-room\').remove()">×</button>';c.appendChild(d)}
+function checkCascade(){const rooms=[];document.querySelectorAll('.cascade-room').forEach(el=>{const n=el.querySelector('.cascade-name').value||'Sala '+(rooms.length+1),g=el.querySelector('.cascade-grade').value,p=parseFloat(el.querySelector('.cascade-pressure').value);if(!isNaN(p))rooms.push({name:n,grade:g,pressure:p,rank:GR[g]})});if(rooms.length<2){alert('Mín 2 salas');return}rooms.sort((a,b)=>b.pressure-a.pressure);let ok=true,html='';rooms.forEach((r,i)=>{let dh='';if(i>0){const df=rooms[i-1].pressure-r.pressure,dg=rooms[i-1].rank!==r.rank;if(dg&&df<10){dh=`<span class="cascade-room-diff fail">ΔP ${df.toFixed(0)} Pa ❌</span>`;ok=false}else if(dg)dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa ✅</span>`;else dh=`<span class="cascade-room-diff pass">ΔP ${df.toFixed(0)} Pa</span>`}html+=`<div class="cascade-result-room"><div><div class="cascade-room-name">${r.name}</div><div class="cascade-room-grade">Grado ${r.grade}</div></div><div style="display:flex;align-items:center;gap:12px">${dh}<div class="cascade-room-pressure">${r.pressure} Pa</div></div></div>`});document.getElementById('cascade-result-body').innerHTML=html;const s=document.getElementById('cascade-status');if(ok){s.className='result-status pass';s.innerHTML='<span class="status-icon">✅</span> Cumple EU GMP Annex 1 §4.3'}else{s.className='result-status fail';s.innerHTML='<span class="status-icon">❌</span> INCUMPLIMIENTO — ΔP <10 Pa'}document.getElementById('cascade-result').classList.add('visible')}
 
-/* ==================== EXCEL ANALYZER ==================== */
+/* ==================== EXCEL ==================== */
 let excelData=null,excelHeaders=[];
+function handleFile(file){if(!file)return;const ext=file.name.split('.').pop().toLowerCase();if(!['xlsx','xls','csv'].includes(ext)){alert('Formato no soportado');return}if(file.size>5*1024*1024){alert('Máx 5 MB');return}const reader=new FileReader();reader.onload=function(e){try{const wb=XLSX.read(e.target.result,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]],json=XLSX.utils.sheet_to_json(ws,{defval:''});if(!json.length){alert('Archivo vacío');return}excelHeaders=Object.keys(json[0]);excelData=json;displayData(file.name,json)}catch(err){alert('Error: '+err.message)}};reader.readAsArrayBuffer(file)}
+function loadSampleData(){excelHeaders=['ID_Sala','Nombre','Departamento','Clasif_GMP','Clasif_ISO','Presión_Pa','ACH','Temp_°C','HR_%','Sup_m2','Altura_m','Suelo','Paredes','Techo'];excelData=[{ID_Sala:'S-101',Nombre:'Zona llenado',Departamento:'Estéril',Clasif_GMP:'A',Clasif_ISO:'ISO 5',Presión_Pa:45,ACH:400,'Temp_°C':'20±2','HR_%':'45±5',Sup_m2:25,Altura_m:2.7,Suelo:'Epoxi',Paredes:'Inox 316L',Techo:'Inox 316L'},{ID_Sala:'S-102',Nombre:'Entorno aséptico',Departamento:'Estéril',Clasif_GMP:'B',Clasif_ISO:'ISO 5/7',Presión_Pa:30,ACH:45,'Temp_°C':'20±2','HR_%':'45±5',Sup_m2:60,Altura_m:2.7,Suelo:'Epoxi',Paredes:'HPL',Techo:'Panel sandwich'},{ID_Sala:'S-103',Nombre:'Preparación',Departamento:'Estéril',Clasif_GMP:'C',Clasif_ISO:'ISO 7/8',Presión_Pa:20,ACH:25,'Temp_°C':'22±2','HR_%':'50±10',Sup_m2:40,Altura_m:2.7,Suelo:'Epoxi',Paredes:'HPL',Techo:'Panel sandwich'},{ID_Sala:'S-104',Nombre:'Lavado',Departamento:'Estéril',Clasif_GMP:'D',Clasif_ISO:'ISO 8',Presión_Pa:10,ACH:15,'Temp_°C':'22±3','HR_%':'55±15',Sup_m2:35,Altura_m:2.7,Suelo:'Epoxi',Paredes:'HPL',Techo:'Panel sandwich'},{ID_Sala:'S-105',Nombre:'Esclusa',Departamento:'Estéril',Clasif_GMP:'D',Clasif_ISO:'ISO 8',Presión_Pa:15,ACH:12,'Temp_°C':'22±3','HR_%':'55±15',Sup_m2:8,Altura_m:2.7,Suelo:'Epoxi',Paredes:'Panel',Techo:'Panel'},{ID_Sala:'S-106',Nombre:'Pasillo',Departamento:'General',Clasif_GMP:'CNC',Clasif_ISO:'-',Presión_Pa:5,ACH:8,'Temp_°C':'22±3','HR_%':'55±15',Sup_m2:45,Altura_m:3.0,Suelo:'Vinilo',Paredes:'Pintura epoxi',Techo:'Registrable'},{ID_Sala:'S-201',Nombre:'Granulación',Departamento:'Sólidos',Clasif_GMP:'D',Clasif_ISO:'ISO 8',Presión_Pa:-10,ACH:18,'Temp_°C':'22±2','HR_%':'40±10',Sup_m2:55,Altura_m:3.2,Suelo:'Epoxi',Paredes:'HPL',Techo:'Panel'},{ID_Sala:'S-202',Nombre:'Compresión',Departamento:'Sólidos',Clasif_GMP:'D',Clasif_ISO:'ISO 8',Presión_Pa:-15,ACH:7,'Temp_°C':'22±2','HR_%':'40±10',Sup_m2:50,Altura_m:3.2,Suelo:'Epoxi',Paredes:'Panel',Techo:'Panel'}];displayData('Datos ejemplo (8 salas)',excelData)}
+function displayData(name,data){document.getElementById('upload-section').style.display='none';document.getElementById('data-section').style.display='block';document.getElementById('file-name').textContent=name;document.getElementById('file-info').textContent=data.length+' filas × '+excelHeaders.length+' col';let html='<thead><tr>'+excelHeaders.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';data.forEach(row=>{html+='<tr>'+excelHeaders.map(h=>'<td>'+(row[h]!==undefined?row[h]:'')+'</td>').join('')+'</tr>'});document.getElementById('data-table').innerHTML=html+'</tbody>';document.getElementById('ai-analysis').classList.remove('visible')}
+function resetExcel(){excelData=null;excelHeaders=[];document.getElementById('upload-section').style.display='block';document.getElementById('data-section').style.display='none';document.getElementById('fileInput').value=''}
+async function analyzeExcel(){if(!excelData)return;const type=document.querySelector('.analyze-opt.selected')?.dataset.type||'full';const btn=document.getElementById('analyzeBtn');btn.disabled=true;btn.textContent='Analizando...';const a=document.getElementById('ai-analysis'),b=document.getElementById('ai-analysis-body');a.classList.add('visible');b.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Analizando contra normativa GMP...</div>';let ds='DATOS:\nColumnas: '+excelHeaders.join(', ')+'\n\n';excelData.forEach((row,i)=>{ds+='Fila '+(i+1)+': '+excelHeaders.map(h=>h+'='+row[h]).join(' | ')+'\n'});const prompts={full:'Análisis GMP completo: clasificaciones, presiones, ACH, condiciones ambientales, acabados. Usa ✅/❌. Resumen al final.\n\n'+ds,pressure:'Solo cascada presiones. EU GMP Annex 1 §4.3.\n\n'+ds,ach:'Solo ACH por clasificación.\n\n'+ds,finishes:'Solo acabados para cada clasificación.\n\n'+ds,custom:(document.getElementById('custom-prompt')?.value||'')+'\n\n'+ds};try{const r=await callAPI('Eres GxP Agent consultor senior. Analiza schedules Revit contra GMP (EU GMP Annex 1, ISO 14644, ISPE, FDA). Riguroso, cita secciones, usa ✅/❌.',[{role:'user',content:prompts[type]}]);b.innerHTML=md(r)}catch(e){b.innerHTML=`<p style="color:var(--error)">⚠️ ${e.message}</p>`}finally{btn.disabled=false;btn.textContent='🤖 Analizar con IA'}}
 
-// Drag & drop
-document.addEventListener('DOMContentLoaded',()=>{
-  const z=document.getElementById('uploadZone');
-  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')});
-  z.addEventListener('dragleave',()=>z.classList.remove('dragover'));
-  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])});
-  // Analyze options
-  document.querySelectorAll('.analyze-opt').forEach(btn=>{
-    btn.addEventListener('click',()=>{document.querySelectorAll('.analyze-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');document.getElementById('custom-prompt-section').style.display=btn.dataset.type==='custom'?'block':'none'});
-  });
-  document.getElementById('userInput').focus();
-});
+/* ==================== DOCS GENERATOR ==================== */
+let selectedDocType=null,lastDocContent='';
+const DOC_TITLES={hvac_memoria:'Memoria Técnica HVAC',cleanroom_criteria:'Criterios de Diseño de Sala Limpia',water_spec:'Especificación Funcional Sistema de Agua',gmp_report:'Informe de Verificación GMP',iq_oq:'Protocolo de Cualificación IQ/OQ'};
+const DOC_DESCS={hvac_memoria:'Documento completo: criterios de diseño, parámetros ambientales, especificaciones de equipos, balances de aire, cascada de presiones.',cleanroom_criteria:'Clasificación, acabados, condiciones ambientales, diferenciales de presión, flujos de personal y material.',water_spec:'Sistema de generación, almacenamiento, distribución, puntos de uso, sanitización, parámetros de calidad.',gmp_report:'Análisis de cumplimiento contra EU GMP Annex 1, FDA 21 CFR, ISPE Guidelines.',iq_oq:'Protocolo base de cualificación de instalación (IQ) y operación (OQ) con criterios de aceptación.'};
 
-function handleFile(file){
-  if(!file)return;
-  const ext=file.name.split('.').pop().toLowerCase();
-  if(!['xlsx','xls','csv'].includes(ext)){alert('Formato no soportado. Usa .xlsx, .xls o .csv');return}
-  if(file.size>5*1024*1024){alert('Archivo demasiado grande. Máximo 5 MB.');return}
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      const wb=XLSX.read(e.target.result,{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const json=XLSX.utils.sheet_to_json(ws,{defval:''});
-      if(!json.length){alert('El archivo está vacío o no tiene datos');return}
-      excelHeaders=Object.keys(json[0]);
-      excelData=json;
-      displayData(file.name,json);
-    }catch(err){alert('Error leyendo archivo: '+err.message)}
+function selectDocType(type){
+  selectedDocType=type;
+  document.querySelectorAll('.doc-type-card').forEach(c=>c.classList.toggle('selected',c.dataset.doc===type));
+  document.getElementById('doc-form').classList.add('visible');
+  document.getElementById('doc-form-title').textContent=DOC_TITLES[type];
+  document.getElementById('doc-form-desc').textContent=DOC_DESCS[type];
+  document.getElementById('doc-output').classList.remove('visible');
+}
+
+async function generateDocument(){
+  if(!selectedDocType)return;
+  const project=document.getElementById('doc-project').value.trim();
+  const client=document.getElementById('doc-client').value.trim();
+  const location=document.getElementById('doc-location').value.trim();
+  const scope=document.getElementById('doc-scope').value.trim();
+  const extra=document.getElementById('doc-extra').value.trim();
+  if(!project||!scope){alert('Completa al menos el nombre del proyecto y la descripción del alcance');return}
+
+  const btn=document.getElementById('generateDocBtn');btn.disabled=true;btn.textContent='Generando documento...';
+  const out=document.getElementById('doc-output'),body=document.getElementById('doc-output-body');
+  out.classList.add('visible');
+  body.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Generando documento técnico...</div>';
+
+  const docPrompts={
+    hvac_memoria:`Genera una MEMORIA TÉCNICA DE HVAC completa y profesional para el siguiente proyecto. Estructura del documento:
+1. OBJETO Y ALCANCE
+2. NORMATIVA DE REFERENCIA (EU GMP Annex 1, ISO 14644, ISPE, ASHRAE)
+3. CRITERIOS DE DISEÑO (condiciones exteriores, interiores por zona)
+4. CLASIFICACIÓN DE ZONAS (tabla con grados, ISO, partículas)
+5. PARÁMETROS AMBIENTALES POR ZONA (tabla: zona, clasificación, temp, HR, ACH, presión)
+6. CASCADA DE PRESIONES
+7. SISTEMA DE CLIMATIZACIÓN (descripción de UTAs, filtración, distribución)
+8. BALANCE DE AIRE (tabla resumen de caudales)
+9. CONTROL Y MONITORIZACIÓN
+10. CUALIFICACIÓN DEL SISTEMA`,
+    cleanroom_criteria:`Genera un documento de CRITERIOS DE DISEÑO DE SALA LIMPIA completo:
+1. OBJETO Y ALCANCE
+2. NORMATIVA APLICABLE
+3. CLASIFICACIÓN DE ZONAS (tabla ISO vs GMP)
+4. CONDICIONES AMBIENTALES (temperatura, humedad, ACH por zona)
+5. CASCADA DE PRESIONES
+6. ACABADOS (suelos, paredes, techos, curvas sanitarias — especificaciones por grado)
+7. FLUJOS DE PERSONAL Y MATERIAL
+8. ESCLUSAS Y VESTIDORES
+9. MONITORIZACIÓN AMBIENTAL
+10. REQUISITOS DE LIMPIEZA`,
+    water_spec:`Genera una ESPECIFICACIÓN FUNCIONAL DE SISTEMA DE AGUA completa:
+1. OBJETO Y ALCANCE
+2. NORMATIVA (farmacopeas USP/EP, ISPE Water Guide)
+3. CALIDAD DEL AGUA DE ALIMENTACIÓN
+4. SISTEMA DE PRETRATAMIENTO
+5. SISTEMA DE GENERACIÓN PW/WFI
+6. ALMACENAMIENTO
+7. LOOP DE DISTRIBUCIÓN (velocidad, pendiente, materiales)
+8. PUNTOS DE USO
+9. SANITIZACIÓN (método, frecuencia, parámetros)
+10. PARÁMETROS DE CALIDAD (tabla: TOC, conductividad, endotoxinas, micro)
+11. INSTRUMENTACIÓN Y CONTROL
+12. CUALIFICACIÓN`,
+    gmp_report:`Genera un INFORME DE VERIFICACIÓN GMP completo:
+1. OBJETO DEL INFORME
+2. NORMATIVA DE REFERENCIA
+3. DESCRIPCIÓN DE LAS ÁREAS EVALUADAS
+4. VERIFICACIÓN DE CLASIFICACIÓN DE ZONAS (tabla con resultado ✅/❌)
+5. VERIFICACIÓN DE CASCADA DE PRESIONES
+6. VERIFICACIÓN DE RENOVACIONES DE AIRE
+7. VERIFICACIÓN DE CONDICIONES AMBIENTALES
+8. VERIFICACIÓN DE ACABADOS
+9. OBSERVACIONES Y NO CONFORMIDADES
+10. CONCLUSIONES Y RECOMENDACIONES`,
+    iq_oq:`Genera un PROTOCOLO DE CUALIFICACIÓN IQ/OQ base:
+1. OBJETIVO
+2. ALCANCE
+3. RESPONSABILIDADES
+4. DOCUMENTACIÓN DE REFERENCIA
+5. DESCRIPCIÓN DEL SISTEMA
+6. CUALIFICACIÓN DE INSTALACIÓN (IQ)
+   - Verificación de componentes instalados
+   - Verificación de materiales y certificados
+   - Verificación de utilidades conectadas
+   - Criterios de aceptación IQ
+7. CUALIFICACIÓN DE OPERACIÓN (OQ)
+   - Pruebas funcionales
+   - Verificación de parámetros operativos
+   - Pruebas de alarmas
+   - Criterios de aceptación OQ
+8. DESVIACIONES
+9. CONCLUSIONES
+10. APROBACIONES`
   };
-  reader.readAsArrayBuffer(file);
-}
 
-function loadSampleData(){
-  excelHeaders=['ID_Sala','Nombre','Departamento','Clasificación_GMP','Clasificación_ISO','Presión_Pa','ACH','Temp_°C','HR_%','Superficie_m2','Altura_m','Suelo','Paredes','Techo'];
-  excelData=[
-    {ID_Sala:'S-101',Nombre:'Zona llenado',Departamento:'Producción Estéril',Clasificación_GMP:'A',Clasificación_ISO:'ISO 5',Presión_Pa:45,ACH:400,['Temp_°C']:'20 ± 2',['HR_%']:'45 ± 5',['Superficie_m2']:25,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Acero inox 316L',Techo:'Acero inox 316L'},
-    {ID_Sala:'S-102',Nombre:'Entorno aséptico',Departamento:'Producción Estéril',Clasificación_GMP:'B',Clasificación_ISO:'ISO 5/7',Presión_Pa:30,ACH:45,['Temp_°C']:'20 ± 2',['HR_%']:'45 ± 5',['Superficie_m2']:60,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
-    {ID_Sala:'S-103',Nombre:'Preparación soluciones',Departamento:'Producción Estéril',Clasificación_GMP:'C',Clasificación_ISO:'ISO 7/8',Presión_Pa:20,ACH:25,['Temp_°C']:'22 ± 2',['HR_%']:'50 ± 10',['Superficie_m2']:40,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
-    {ID_Sala:'S-104',Nombre:'Lavado material',Departamento:'Producción Estéril',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:10,ACH:15,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:35,Altura_m:2.7,Suelo:'Epoxi autonivelante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
-    {ID_Sala:'S-105',Nombre:'Esclusa personal',Departamento:'Producción Estéril',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:15,ACH:12,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:8,Altura_m:2.7,Suelo:'Epoxi',Paredes:'Panel sandwich',Techo:'Panel sandwich'},
-    {ID_Sala:'S-106',Nombre:'Pasillo técnico',Departamento:'General',Clasificación_GMP:'CNC',Clasificación_ISO:'-',Presión_Pa:5,ACH:8,['Temp_°C']:'22 ± 3',['HR_%']:'55 ± 15',['Superficie_m2']:45,Altura_m:3.0,Suelo:'Vinilo',Paredes:'Pintura epoxi',Techo:'Falso techo registrable'},
-    {ID_Sala:'S-201',Nombre:'Granulación',Departamento:'Sólidos Orales',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:-10,ACH:18,['Temp_°C']:'22 ± 2',['HR_%']:'40 ± 10',['Superficie_m2']:55,Altura_m:3.2,Suelo:'Epoxi antideslizante',Paredes:'Panel sandwich HPL',Techo:'Panel sandwich'},
-    {ID_Sala:'S-202',Nombre:'Compresión',Departamento:'Sólidos Orales',Clasificación_GMP:'D',Clasificación_ISO:'ISO 8',Presión_Pa:-15,ACH:7,['Temp_°C']:'22 ± 2',['HR_%']:'40 ± 10',['Superficie_m2']:50,Altura_m:3.2,Suelo:'Epoxi',Paredes:'Panel sandwich',Techo:'Panel sandwich'},
-  ];
-  displayData('Datos de ejemplo (8 salas)',excelData);
-}
+  const prompt=`${docPrompts[selectedDocType]}
 
-function displayData(name,data){
-  document.getElementById('upload-section').style.display='none';
-  document.getElementById('data-section').style.display='block';
-  document.getElementById('file-name').textContent=name;
-  document.getElementById('file-info').textContent=data.length+' filas × '+excelHeaders.length+' columnas';
-  let html='<thead><tr>'+excelHeaders.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>';
-  data.forEach(row=>{html+='<tr>'+excelHeaders.map(h=>'<td>'+(row[h]!==undefined?row[h]:'')+'</td>').join('')+'</tr>'});
-  html+='</tbody>';
-  document.getElementById('data-table').innerHTML=html;
-  document.getElementById('ai-analysis').classList.remove('visible');
-}
+DATOS DEL PROYECTO:
+- Proyecto: ${project}
+- Cliente: ${client||'No especificado'}
+- Ubicación: ${location||'No especificada'}
+- Alcance: ${scope}
+${extra?'- Requisitos adicionales: '+extra:''}
 
-function resetExcel(){
-  excelData=null;excelHeaders=[];
-  document.getElementById('upload-section').style.display='block';
-  document.getElementById('data-section').style.display='none';
-  document.getElementById('fileInput').value='';
-}
-
-async function analyzeExcel(){
-  if(!excelData)return;
-  const type=document.querySelector('.analyze-opt.selected')?.dataset.type||'full';
-  const btn=document.getElementById('analyzeBtn');
-  btn.disabled=true;btn.textContent='Analizando...';
-
-  const analysisEl=document.getElementById('ai-analysis');
-  const bodyEl=document.getElementById('ai-analysis-body');
-  analysisEl.classList.add('visible');
-  bodyEl.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Analizando datos contra normativa GMP...</div>';
-
-  // Build data summary for Claude
-  let dataStr='DATOS DEL SCHEDULE DE SALAS:\n\nColumnas: '+excelHeaders.join(', ')+'\n\n';
-  excelData.forEach((row,i)=>{dataStr+='Fila '+(i+1)+': '+excelHeaders.map(h=>h+'='+row[h]).join(' | ')+'\n'});
-
-  const prompts={
-    full:`Analiza estos datos de un schedule de salas exportado de Revit contra normativa GMP. Verifica:\n1. Clasificaciones (coherencia entre GMP y ISO)\n2. Cascada de presiones (diferenciales ≥10-15 Pa entre zonas de diferente grado)\n3. Renovaciones de aire (ACH adecuado para cada grado)\n4. Condiciones ambientales (temperatura y humedad)\n5. Acabados (adecuados para la clasificación)\n\nPara cada punto, indica ✅ si cumple o ❌ si detectas un incumplimiento, con la referencia normativa específica.\n\nAl final, proporciona un RESUMEN con el número de observaciones críticas, mayores y menores.\n\n${dataStr}`,
-    pressure:`Analiza SOLO la cascada de presiones de estos datos. Verifica que los diferenciales entre salas adyacentes de diferente clasificación sean ≥10-15 Pa según EU GMP Annex 1 §4.3. Identifica incumplimientos.\n\n${dataStr}`,
-    ach:`Analiza SOLO las renovaciones de aire (ACH) de estos datos. Verifica que cada sala tenga ACH adecuado para su clasificación según ISPE y EU GMP. Identifica incumplimientos.\n\n${dataStr}`,
-    finishes:`Analiza SOLO los acabados (suelos, paredes, techos) de estos datos. Verifica que sean adecuados para la clasificación GMP de cada sala. Considera rugosidad superficial, lavabilidad, resistencia química.\n\n${dataStr}`,
-    custom:document.getElementById('custom-prompt')?.value+'\n\n'+dataStr||dataStr
-  };
+INSTRUCCIONES DE FORMATO:
+- Usa formato markdown con encabezados ##, ###
+- Incluye tablas donde sea apropiado
+- Sé específico con valores numéricos y referencias normativas
+- El documento debe ser profesional y listo para revisión
+- Incluye la sección y artículo cuando cites normativas
+- Extensión: documento completo y detallado (no resúmenes)`;
 
   try{
-    const result=await callAPI(
-      'Eres GxP Agent, un consultor senior de ingeniería farmacéutica. Analiza datos de schedules de Revit contra normativa GMP (EU GMP Annex 1, ISO 14644, ISPE, FDA). Sé riguroso, cita secciones específicas de normativas, y usa formato claro con ✅ y ❌ para indicar cumplimiento.',
-      [{role:'user',content:prompts[type]}]
-    );
-    bodyEl.innerHTML=md(result);
-  }catch(e){
-    bodyEl.innerHTML=`<p style="color:var(--error)">⚠️ Error: ${e.message}</p>`;
-  }finally{
-    btn.disabled=false;btn.textContent='🤖 Analizar con IA';
-  }
+    const r=await callAPI('Eres GxP Agent, un consultor senior de ingeniería farmacéutica generando documentos técnicos profesionales. Genera documentos completos, detallados, con valores numéricos específicos y referencias normativas exactas. Usa formato markdown. El documento debe estar listo para revisión por un equipo de ingeniería.',[{role:'user',content:prompt}]);
+    lastDocContent=r;
+    body.innerHTML=md(r);
+  }catch(e){body.innerHTML=`<p style="color:var(--error)">⚠️ ${e.message}</p>`}
+  finally{btn.disabled=false;btn.textContent='📄 Generar documento'}
 }
+
+function downloadPDF(){
+  if(!lastDocContent)return;
+  const render=document.getElementById('pdf-render');
+  const project=document.getElementById('doc-project').value||'Documento';
+  const client=document.getElementById('doc-client').value||'';
+  const date=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+
+  render.innerHTML=`<div class="pdf-header"><h1>GxP Agent</h1><p>Documento técnico generado por IA</p></div>${md(lastDocContent)}<div class="pdf-footer">Generado por GxP Agent — ${date} — Este documento es un borrador generado por IA y debe ser revisado por un profesional cualificado antes de su uso.</div>`;
+
+  const opt={margin:[15,15,20,15],filename:project.replace(/[^a-zA-Z0-9]/g,'_')+'_GxPAgent.pdf',image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+
+  html2pdf().set(opt).from(render).save().then(()=>{render.innerHTML=''});
+}
+
+/* ==================== INIT ==================== */
+document.addEventListener('DOMContentLoaded',()=>{
+  // Upload drag drop
+  const z=document.getElementById('uploadZone');
+  if(z){z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')});z.addEventListener('dragleave',()=>z.classList.remove('dragover'));z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])})}
+  // Analyze options
+  document.querySelectorAll('.analyze-opt').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.analyze-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const cs=document.getElementById('custom-prompt-section');if(cs)cs.style.display=btn.dataset.type==='custom'?'block':'none'})});
+  document.getElementById('userInput').focus();
+});
 </script>
 </body>
 </html>
