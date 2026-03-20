@@ -56,6 +56,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
 .loading-analysis{display:flex;align-items:center;gap:10px;padding:20px;color:var(--text-secondary);font-size:14px}.loading-spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue-dark);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .reset-btn{padding:8px 16px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}.reset-btn:hover{border-color:var(--error);color:var(--error)}
 /* Docs generator */
+.system-tag{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--bg-white);border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all .2s;user-select:none;font-family:'DM Sans',sans-serif}
+.system-tag:hover{border-color:var(--blue-dark);background:var(--blue-pale)}
+.system-tag input{accent-color:var(--blue-dark)}
 .doc-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
 .doc-type-card{background:var(--bg-white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
 .doc-type-card:hover{border-color:var(--border-blue);transform:translateY(-2px);box-shadow:var(--shadow-md)}
@@ -92,7 +95,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
   <button class="tab-btn" onclick="switchTab('ach')"><span class="tab-icon">💨</span> Calc. ACH</button>
   <button class="tab-btn" onclick="switchTab('cascade')"><span class="tab-icon">📊</span> Presiones</button>
   <button class="tab-btn" onclick="switchTab('excel')"><span class="tab-icon">📁</span> Analizar Excel</button>
-  <button class="tab-btn" onclick="switchTab('docs')"><span class="tab-icon">📄</span> Generar Documento</button>
+  <button class="tab-btn" onclick="switchTab('docs')"><span class="tab-icon">💰</span> Estimador</button>
+  <button class="tab-btn" onclick="switchTab('classif')"><span class="tab-icon">🔬</span> Clasificaciones</button>
 </div>
 <!-- TAB: CHAT -->
 <div class="tab-panel active" id="panel-chat">
@@ -204,88 +208,200 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg-light);color:var(--tex
     </div>
   </div></div>
 </div>
-<!-- TAB: DOCS -->
+<!-- TAB: ESTIMATOR -->
 <div class="tab-panel" id="panel-docs">
-  <div class="tool-panel"><div class="tool-inner">
-    <div class="tool-header"><h2>Generador de Documentos Técnicos</h2><p>Selecciona el tipo de documento, completa los datos de tu proyecto, y GxP Agent generará un borrador profesional descargable en PDF.</p></div>
+  <div class="tool-panel"><div class="tool-inner" style="max-width:800px">
+    <div class="tool-header">
+      <h2>Estimador de Anteproyecto</h2>
+      <p>Estimación paramétrica de costes y plazos para plantas farmacéuticas. Basado en benchmarks de la industria (ISPE, PM Group) y experiencia en proyectos EPCM. Precisión: ±20-30% (nivel anteproyecto).</p>
+    </div>
 
-    <p style="font-size:13px;font-weight:600;margin-bottom:12px">Selecciona el tipo de documento:</p>
-    <div class="doc-type-grid">
-      <div class="doc-type-card" onclick="selectDocType('hvac_memoria')" data-doc="hvac_memoria">
-        <div class="doc-icon">💨</div>
-        <h4>Memoria Técnica HVAC</h4>
-        <p>Documento completo de diseño HVAC: criterios, cálculos, especificaciones de equipos, balances de aire.</p>
+    <div class="form-group">
+      <label class="form-label">Tipo de planta farmacéutica</label>
+      <select id="est-type" class="form-input form-select" onchange="updateEstUI()">
+        <option value="">Seleccionar...</option>
+        <option value="sterile_injectable">Inyectables estériles (viales, ampollas, jeringas)</option>
+        <option value="sterile_ophthalmic">Estériles oftálmicos / nasales</option>
+        <option value="solid_oral">Sólidos orales (comprimidos, cápsulas)</option>
+        <option value="liquid_oral">Líquidos orales y semisólidos (cremas, jarabes)</option>
+        <option value="biologics">Biológicos / Biotecnología</option>
+        <option value="api">Principio activo (API / síntesis)</option>
+        <option value="veterinary">Veterinarios</option>
+        <option value="lab_qc">Laboratorio Control de Calidad</option>
+        <option value="warehouse">Almacén farmacéutico (GDP)</option>
+      </select>
+    </div>
+    <div id="est-examples" style="display:none;margin-top:-12px;margin-bottom:20px;padding:10px 14px;background:var(--blue-pale);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);line-height:1.6"></div>
+
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Superficie total construida (m²)</label><input type="number" id="est-area" class="form-input" placeholder="Ej: 3000" step="100"></div>
+      <div class="form-group"><label class="form-label">Superficie zona clasificada (m²)</label><input type="number" id="est-classified" class="form-input" placeholder="Ej: 1200" step="50"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Ubicación del proyecto</label>
+        <select id="est-location" class="form-input form-select">
+          <option value="">Seleccionar...</option>
+          <option value="spain">España</option>
+          <option value="mexico">México</option>
+          <option value="colombia">Colombia</option>
+          <option value="argentina">Argentina</option>
+          <option value="brazil">Brasil</option>
+          <option value="chile">Chile</option>
+          <option value="peru">Perú</option>
+          <option value="central_america">Centroamérica</option>
+          <option value="caribbean">Caribe / Puerto Rico</option>
+          <option value="usa">Estados Unidos</option>
+          <option value="europe_other">Europa (otros)</option>
+          <option value="india">India / Asia</option>
+        </select>
       </div>
-      <div class="doc-type-card" onclick="selectDocType('cleanroom_criteria')" data-doc="cleanroom_criteria">
-        <div class="doc-icon">🏗️</div>
-        <h4>Criterios de Diseño Sala Limpia</h4>
-        <p>Especificaciones de clasificación, acabados, condiciones ambientales, presiones y flujos.</p>
+      <div class="form-group"><label class="form-label">Nivel de acabado</label>
+        <select id="est-finish" class="form-input form-select">
+          <option value="standard">Estándar (panelería regional, equipos mix)</option>
+          <option value="premium">Premium (panelería europea, equipos top tier)</option>
+        </select>
       </div>
-      <div class="doc-type-card" onclick="selectDocType('water_spec')" data-doc="water_spec">
-        <div class="doc-icon">💧</div>
-        <h4>Especificación Funcional Agua</h4>
-        <p>Diseño de sistema PW/WFI: generación, almacenamiento, distribución, puntos de uso, sanitización.</p>
-      </div>
-      <div class="doc-type-card" onclick="selectDocType('gmp_report')" data-doc="gmp_report">
-        <div class="doc-icon">📋</div>
-        <h4>Informe Verificación GMP</h4>
-        <p>Análisis de cumplimiento normativo de un área o proyecto contra EU GMP, FDA, ISPE.</p>
-      </div>
-      <div class="doc-type-card" onclick="selectDocType('iq_oq')" data-doc="iq_oq">
-        <div class="doc-icon">✅</div>
-        <h4>Protocolo Cualificación IQ/OQ</h4>
-        <p>Base de protocolo de cualificación de instalación y operación para sistemas HVAC, agua o salas.</p>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Volumen producción mensual <span class="form-sublabel">(orientativo)</span></label><input type="text" id="est-volume" class="form-input" placeholder="Ej: 500.000 uds/mes"></div>
+      <div class="form-group"><label class="form-label">Producto a fabricar</label><input type="text" id="est-product" class="form-input" placeholder="Ej: Suero fisiológico 500ml"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Sistemas incluidos</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label class="system-tag"><input type="checkbox" value="hvac" checked> HVAC / Salas limpias</label>
+        <label class="system-tag"><input type="checkbox" value="pw" checked> Agua purificada (PW)</label>
+        <label class="system-tag"><input type="checkbox" value="wfi"> WFI</label>
+        <label class="system-tag"><input type="checkbox" value="steam" checked> Vapor / Vapor limpio</label>
+        <label class="system-tag"><input type="checkbox" value="gases"> Gases (N₂, aire comp.)</label>
+        <label class="system-tag"><input type="checkbox" value="electrical" checked> Electricidad</label>
+        <label class="system-tag"><input type="checkbox" value="bms"> BMS / Control</label>
       </div>
     </div>
 
-    <!-- Document form -->
-    <div class="doc-form" id="doc-form">
-      <div style="background:var(--blue-pale);border:1px solid var(--border-blue);border-radius:var(--radius);padding:16px;margin-bottom:20px">
-        <p style="font-size:13px;font-weight:700;color:var(--blue-dark);margin-bottom:4px" id="doc-form-title">Documento seleccionado</p>
-        <p style="font-size:12px;color:var(--text-secondary)" id="doc-form-desc">Completa los datos de tu proyecto para generar el documento.</p>
-      </div>
+    <button class="calc-btn" onclick="estimateProject()" style="width:100%;padding:16px;font-size:15px">📊 Generar estimación de anteproyecto</button>
 
-      <div class="form-group">
-        <label class="form-label">Nombre del proyecto</label>
-        <input type="text" id="doc-project" class="form-input" placeholder="Ej: Planta de Inyectables Laboratorio XYZ">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Cliente / Empresa</label>
-          <input type="text" id="doc-client" class="form-input" placeholder="Ej: Laboratorios ABC">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Ubicación</label>
-          <input type="text" id="doc-location" class="form-input" placeholder="Ej: Bogotá, Colombia">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Descripción del alcance / contexto</label>
-        <textarea id="doc-scope" class="form-input" rows="4" placeholder="Describe el proyecto, las áreas involucradas, tipo de producto farmacéutico, número de salas, sistemas principales..." style="font-size:13px;resize:vertical"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Requisitos adicionales <span class="form-sublabel">(opcional)</span></label>
-        <textarea id="doc-extra" class="form-input" rows="2" placeholder="Normativas específicas, requisitos del cliente, estándares internos..." style="font-size:13px;resize:vertical"></textarea>
-      </div>
-      <button class="calc-btn" id="generateDocBtn" onclick="generateDocument()">📄 Generar documento</button>
+    <div class="result-card" id="est-result" style="margin-top:24px">
+      <div class="result-card-header" style="font-size:16px">📊 Estimación de Anteproyecto</div>
+      <div class="result-card-body" id="est-result-body"></div>
     </div>
 
-    <!-- Generated document -->
-    <div class="ai-analysis" id="doc-output">
+    <div class="ai-analysis" id="est-ai" style="margin-top:20px">
       <div class="ai-analysis-card">
-        <div class="ai-analysis-header">
-          <span>📄 Documento generado</span>
-          <button class="pdf-download-btn" onclick="downloadPDF()">⬇ Descargar PDF</button>
-        </div>
-        <div class="ai-analysis-body" id="doc-output-body"></div>
+        <div class="ai-analysis-header">🤖 Análisis y recomendaciones</div>
+        <div class="ai-analysis-body" id="est-ai-body"></div>
       </div>
     </div>
   </div></div>
 </div>
+<!-- TAB: CLASSIFICATIONS -->
+<div class="tab-panel" id="panel-classif">
+  <div class="tool-panel"><div class="tool-inner" style="max-width:900px">
+    <div class="tool-header">
+      <h2>Tabla de Clasificación de Salas Limpias</h2>
+      <p>Referencia rápida: clasificaciones ISO 14644-1, grados EU GMP Annex 1, límites de partículas, condiciones ambientales y acabados recomendados. Haz clic en cualquier fila para ver el detalle completo.</p>
+    </div>
 
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <select id="classif-filter" class="form-input form-select" style="max-width:200px" onchange="filterClassif()">
+        <option value="all">Todas las clasificaciones</option>
+        <option value="A">Grado A</option>
+        <option value="B">Grado B</option>
+        <option value="C">Grado C</option>
+        <option value="D">Grado D</option>
+      </select>
+      <div style="display:flex;gap:6px">
+        <button class="quick-btn" style="padding:8px 14px" onclick="toggleView('particles')" id="view-particles">Partículas</button>
+        <button class="quick-btn" style="padding:8px 14px;background:var(--blue-pale);border-color:var(--border-blue);color:var(--blue-dark)" onclick="toggleView('conditions')" id="view-conditions">Condiciones</button>
+        <button class="quick-btn" style="padding:8px 14px" onclick="toggleView('finishes')" id="view-finishes">Acabados</button>
+      </div>
+    </div>
+
+    <!-- PARTICLES VIEW -->
+    <div id="view-particles-table">
+      <div class="data-preview">
+        <div class="data-preview-header"><h3>Límites de partículas por clasificación</h3><span class="data-preview-info">Partículas/m³ — EU GMP Annex 1 (2022) + ISO 14644-1</span></div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="classif-table-particles">
+            <thead><tr>
+              <th style="min-width:80px">Grado GMP</th>
+              <th>ISO (reposo)</th>
+              <th>ISO (operación)</th>
+              <th>≥0.5μm Reposo</th>
+              <th>≥5μm Reposo</th>
+              <th>≥0.5μm Operación</th>
+              <th>≥5μm Operación</th>
+            </tr></thead>
+            <tbody id="classif-body-particles"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONDITIONS VIEW -->
+    <div id="view-conditions-table" style="display:none">
+      <div class="data-preview">
+        <div class="data-preview-header"><h3>Condiciones ambientales por clasificación</h3><span class="data-preview-info">ISPE Baseline Guide Vol. 2 + EU GMP Annex 1</span></div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="classif-table-conditions">
+            <thead><tr>
+              <th style="min-width:80px">Grado GMP</th>
+              <th>ACH (ren/h)</th>
+              <th>Tipo flujo</th>
+              <th>Temperatura</th>
+              <th>Humedad Relativa</th>
+              <th>ΔP mínimo (Pa)</th>
+              <th>Monitorización</th>
+            </tr></thead>
+            <tbody id="classif-body-conditions"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINISHES VIEW -->
+    <div id="view-finishes-table" style="display:none">
+      <div class="data-preview">
+        <div class="data-preview-header"><h3>Acabados recomendados por clasificación</h3><span class="data-preview-info">ISPE Baseline Guide Vol. 2 + Buenas prácticas</span></div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="classif-table-finishes">
+            <thead><tr>
+              <th style="min-width:80px">Grado GMP</th>
+              <th>Suelo</th>
+              <th>Paredes</th>
+              <th>Techo</th>
+              <th>Curva sanitaria</th>
+              <th>Rugosidad (Ra)</th>
+            </tr></thead>
+            <tbody id="classif-body-finishes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expandable detail -->
+    <div class="result-card" id="classif-detail" style="margin-top:20px">
+      <div class="result-card-header" id="classif-detail-title">🔬 Detalle de clasificación</div>
+      <div class="result-card-body" id="classif-detail-body"></div>
+    </div>
+
+    <!-- Reference -->
+    <div class="ref-note" style="margin-top:20px">
+      <strong>Referencias normativas:</strong><br>
+      • ISO 14644-1:2015 — Clasificación de limpieza del aire por concentración de partículas<br>
+      • EU GMP Annex 1 (2022) — Fabricación de medicamentos estériles, §4.1-4.35<br>
+      • ISPE Baseline Guide Vol. 2 — Oral Solid Dosage Forms (condiciones ambientales)<br>
+      • ISPE Baseline Guide Vol. 3 — Sterile Product Manufacturing (acabados, presiones)<br>
+      • EU GMP Annex 1, §4.3: Diferencial de presión mínimo 10-15 Pa entre zonas de diferente clasificación
+    </div>
+
+  </div></div>
+</div>
 <script>
 /* ==================== TABS ==================== */
-const TAB_IDS=['chat','ach','cascade','excel','docs'];
+const TAB_IDS=['chat','ach','cascade','excel','docs','classif'];
 function switchTab(id){document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TAB_IDS[i]===id));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+id).classList.add('active');if(id==='chat')document.getElementById('userInput').focus()}
 
 /* ==================== API ==================== */
@@ -323,174 +439,308 @@ function displayData(name,data){document.getElementById('upload-section').style.
 function resetExcel(){excelData=null;excelHeaders=[];document.getElementById('upload-section').style.display='block';document.getElementById('data-section').style.display='none';document.getElementById('fileInput').value=''}
 async function analyzeExcel(){if(!excelData)return;const type=document.querySelector('.analyze-opt.selected')?.dataset.type||'full';const btn=document.getElementById('analyzeBtn');btn.disabled=true;btn.textContent='Analizando...';const a=document.getElementById('ai-analysis'),b=document.getElementById('ai-analysis-body');a.classList.add('visible');b.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Analizando contra normativa GMP...</div>';let ds='DATOS:\nColumnas: '+excelHeaders.join(', ')+'\n\n';excelData.forEach((row,i)=>{ds+='Fila '+(i+1)+': '+excelHeaders.map(h=>h+'='+row[h]).join(' | ')+'\n'});const prompts={full:'Análisis GMP completo: clasificaciones, presiones, ACH, condiciones ambientales, acabados. Usa ✅/❌. Resumen al final.\n\n'+ds,pressure:'Solo cascada presiones. EU GMP Annex 1 §4.3.\n\n'+ds,ach:'Solo ACH por clasificación.\n\n'+ds,finishes:'Solo acabados para cada clasificación.\n\n'+ds,custom:(document.getElementById('custom-prompt')?.value||'')+'\n\n'+ds};try{const r=await callAPI('Eres GxP Agent consultor senior. Analiza schedules Revit contra GMP (EU GMP Annex 1, ISO 14644, ISPE, FDA). Riguroso, cita secciones, usa ✅/❌.',[{role:'user',content:prompts[type]}]);b.innerHTML=md(r)}catch(e){b.innerHTML=`<p style="color:var(--error)">⚠️ ${e.message}</p>`}finally{btn.disabled=false;btn.textContent='🤖 Analizar con IA'}}
 
-/* ==================== DOCS GENERATOR ==================== */
-let selectedDocType=null,lastDocContent='';
-const DOC_TITLES={hvac_memoria:'Memoria Técnica HVAC',cleanroom_criteria:'Criterios de Diseño de Sala Limpia',water_spec:'Especificación Funcional Sistema de Agua',gmp_report:'Informe de Verificación GMP',iq_oq:'Protocolo de Cualificación IQ/OQ'};
-const DOC_DESCS={hvac_memoria:'Documento completo: criterios de diseño, parámetros ambientales, especificaciones de equipos, balances de aire, cascada de presiones.',cleanroom_criteria:'Clasificación, acabados, condiciones ambientales, diferenciales de presión, flujos de personal y material.',water_spec:'Sistema de generación, almacenamiento, distribución, puntos de uso, sanitización, parámetros de calidad.',gmp_report:'Análisis de cumplimiento contra EU GMP Annex 1, FDA 21 CFR, ISPE Guidelines.',iq_oq:'Protocolo base de cualificación de instalación (IQ) y operación (OQ) con criterios de aceptación.'};
+/* ==================== ESTIMATOR ==================== */
+const PLANT_DATA={
+  sterile_injectable:{label:'Inyectables Estériles',baseRate:3800,classifiedRate:5200,examples:'Viales de antibiótico, ampollas de analgésico, jeringas precargadas, sueros IV, vacunas líquidas.',timeBase:18,engHoursPerM2:12},
+  sterile_ophthalmic:{label:'Estériles Oftálmicos',baseRate:3500,classifiedRate:4800,examples:'Colirios, soluciones nasales, gotas óticas, soluciones de irrigación.',timeBase:16,engHoursPerM2:11},
+  solid_oral:{label:'Sólidos Orales',baseRate:2200,classifiedRate:3000,examples:'Comprimidos recubiertos, cápsulas duras/blandas, comprimidos efervescentes, granulados.',timeBase:14,engHoursPerM2:8},
+  liquid_oral:{label:'Líquidos y Semisólidos',baseRate:2400,classifiedRate:3200,examples:'Jarabes, suspensiones, cremas, pomadas, geles, supositorios.',timeBase:14,engHoursPerM2:9},
+  biologics:{label:'Biológicos / Biotech',baseRate:5500,classifiedRate:7500,examples:'Anticuerpos monoclonales, proteínas recombinantes, terapias celulares, vacunas biotecnológicas.',timeBase:24,engHoursPerM2:16},
+  api:{label:'API / Síntesis',baseRate:3200,classifiedRate:4500,examples:'Principios activos por síntesis química, intermedios farmacéuticos, APIs de alta potencia.',timeBase:20,engHoursPerM2:13},
+  veterinary:{label:'Veterinarios',baseRate:1800,classifiedRate:2800,examples:'Vacunas veterinarias, antiparasitarios, antibióticos veterinarios, suplementos.',timeBase:12,engHoursPerM2:7},
+  lab_qc:{label:'Laboratorio QC',baseRate:2500,classifiedRate:3500,examples:'Control de calidad, microbiología, fisicoquímico, estabilidades, I+D.',timeBase:10,engHoursPerM2:10},
+  warehouse:{label:'Almacén GDP',baseRate:800,classifiedRate:1200,examples:'Almacén MP/PT con control de temperatura, cámaras frías 2-8°C, almacén de inflamables.',timeBase:8,engHoursPerM2:4}
+};
+const LOC_FACTORS={spain:1.15,mexico:0.85,colombia:0.75,argentina:0.65,brazil:0.80,chile:0.82,peru:0.70,central_america:0.72,caribbean:1.05,usa:1.45,europe_other:1.25,india:0.55};
+const LOC_LABELS={spain:'España',mexico:'México',colombia:'Colombia',argentina:'Argentina',brazil:'Brasil',chile:'Chile',peru:'Perú',central_america:'Centroamérica',caribbean:'Caribe/PR',usa:'Estados Unidos',europe_other:'Europa',india:'India/Asia'};
+const SYSTEM_COSTS={hvac:{label:'HVAC / Climatización',pctBase:0.18},pw:{label:'Agua Purificada (PW)',fixed:280000},wfi:{label:'WFI',fixed:420000},steam:{label:'Vapor / Vapor limpio',fixed:180000},gases:{label:'Gases comprimidos',fixed:140000},electrical:{label:'Electricidad',pctBase:0.12},bms:{label:'BMS / Control',pctBase:0.05}};
+const PHASES={design:{label:'Diseño e Ingeniería',pct:0.12,timePct:0.25},procurement:{label:'Compras y Contratación',pct:0.03,timePct:0.10},construction:{label:'Construcción e Instalación',pct:0.70,timePct:0.40},commissioning:{label:'Comisionado',pct:0.05,timePct:0.10},qualification:{label:'Cualificación (IQ/OQ/PQ)',pct:0.08,timePct:0.12},validation:{label:'Validación y Arranque',pct:0.02,timePct:0.03}};
 
-function selectDocType(type){
-  selectedDocType=type;
-  document.querySelectorAll('.doc-type-card').forEach(c=>c.classList.toggle('selected',c.dataset.doc===type));
-  document.getElementById('doc-form').classList.add('visible');
-  document.getElementById('doc-form-title').textContent=DOC_TITLES[type];
-  document.getElementById('doc-form-desc').textContent=DOC_DESCS[type];
-  document.getElementById('doc-output').classList.remove('visible');
+function updateEstUI(){
+  const t=document.getElementById('est-type').value;
+  const ex=document.getElementById('est-examples');
+  if(t&&PLANT_DATA[t]){ex.style.display='block';ex.innerHTML=`<strong>Ejemplos de producto:</strong> ${PLANT_DATA[t].examples}`}
+  else{ex.style.display='none'}
 }
 
-async function generateDocument(){
-  if(!selectedDocType)return;
-  const project=document.getElementById('doc-project').value.trim();
-  const client=document.getElementById('doc-client').value.trim();
-  const location=document.getElementById('doc-location').value.trim();
-  const scope=document.getElementById('doc-scope').value.trim();
-  const extra=document.getElementById('doc-extra').value.trim();
-  if(!project||!scope){alert('Completa al menos el nombre del proyecto y la descripción del alcance');return}
+function estimateProject(){
+  const type=document.getElementById('est-type').value;
+  const area=parseFloat(document.getElementById('est-area').value);
+  const classified=parseFloat(document.getElementById('est-classified').value);
+  const loc=document.getElementById('est-location').value;
+  const finish=document.getElementById('est-finish').value;
+  const volume=document.getElementById('est-volume').value;
+  const product=document.getElementById('est-product').value;
 
-  const btn=document.getElementById('generateDocBtn');btn.disabled=true;btn.textContent='Generando documento...';
-  const out=document.getElementById('doc-output'),body=document.getElementById('doc-output-body');
-  out.classList.add('visible');
-  body.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Generando documento técnico...</div>';
+  if(!type||!area||!classified||!loc){alert('Completa al menos: tipo de planta, superficies y ubicación');return}
 
-  const docPrompts={
-    hvac_memoria:`Genera una MEMORIA TÉCNICA DE HVAC completa y profesional para el siguiente proyecto. Estructura del documento:
-1. OBJETO Y ALCANCE
-2. NORMATIVA DE REFERENCIA (EU GMP Annex 1, ISO 14644, ISPE, ASHRAE)
-3. CRITERIOS DE DISEÑO (condiciones exteriores, interiores por zona)
-4. CLASIFICACIÓN DE ZONAS (tabla con grados, ISO, partículas)
-5. PARÁMETROS AMBIENTALES POR ZONA (tabla: zona, clasificación, temp, HR, ACH, presión)
-6. CASCADA DE PRESIONES
-7. SISTEMA DE CLIMATIZACIÓN (descripción de UTAs, filtración, distribución)
-8. BALANCE DE AIRE (tabla resumen de caudales)
-9. CONTROL Y MONITORIZACIÓN
-10. CUALIFICACIÓN DEL SISTEMA`,
-    cleanroom_criteria:`Genera un documento de CRITERIOS DE DISEÑO DE SALA LIMPIA completo:
-1. OBJETO Y ALCANCE
-2. NORMATIVA APLICABLE
-3. CLASIFICACIÓN DE ZONAS (tabla ISO vs GMP)
-4. CONDICIONES AMBIENTALES (temperatura, humedad, ACH por zona)
-5. CASCADA DE PRESIONES
-6. ACABADOS (suelos, paredes, techos, curvas sanitarias — especificaciones por grado)
-7. FLUJOS DE PERSONAL Y MATERIAL
-8. ESCLUSAS Y VESTIDORES
-9. MONITORIZACIÓN AMBIENTAL
-10. REQUISITOS DE LIMPIEZA`,
-    water_spec:`Genera una ESPECIFICACIÓN FUNCIONAL DE SISTEMA DE AGUA completa:
-1. OBJETO Y ALCANCE
-2. NORMATIVA (farmacopeas USP/EP, ISPE Water Guide)
-3. CALIDAD DEL AGUA DE ALIMENTACIÓN
-4. SISTEMA DE PRETRATAMIENTO
-5. SISTEMA DE GENERACIÓN PW/WFI
-6. ALMACENAMIENTO
-7. LOOP DE DISTRIBUCIÓN (velocidad, pendiente, materiales)
-8. PUNTOS DE USO
-9. SANITIZACIÓN (método, frecuencia, parámetros)
-10. PARÁMETROS DE CALIDAD (tabla: TOC, conductividad, endotoxinas, micro)
-11. INSTRUMENTACIÓN Y CONTROL
-12. CUALIFICACIÓN`,
-    gmp_report:`Genera un INFORME DE VERIFICACIÓN GMP completo:
-1. OBJETO DEL INFORME
-2. NORMATIVA DE REFERENCIA
-3. DESCRIPCIÓN DE LAS ÁREAS EVALUADAS
-4. VERIFICACIÓN DE CLASIFICACIÓN DE ZONAS (tabla con resultado ✅/❌)
-5. VERIFICACIÓN DE CASCADA DE PRESIONES
-6. VERIFICACIÓN DE RENOVACIONES DE AIRE
-7. VERIFICACIÓN DE CONDICIONES AMBIENTALES
-8. VERIFICACIÓN DE ACABADOS
-9. OBSERVACIONES Y NO CONFORMIDADES
-10. CONCLUSIONES Y RECOMENDACIONES`,
-    iq_oq:`Genera un PROTOCOLO DE CUALIFICACIÓN IQ/OQ base:
-1. OBJETIVO
-2. ALCANCE
-3. RESPONSABILIDADES
-4. DOCUMENTACIÓN DE REFERENCIA
-5. DESCRIPCIÓN DEL SISTEMA
-6. CUALIFICACIÓN DE INSTALACIÓN (IQ)
-   - Verificación de componentes instalados
-   - Verificación de materiales y certificados
-   - Verificación de utilidades conectadas
-   - Criterios de aceptación IQ
-7. CUALIFICACIÓN DE OPERACIÓN (OQ)
-   - Pruebas funcionales
-   - Verificación de parámetros operativos
-   - Pruebas de alarmas
-   - Criterios de aceptación OQ
-8. DESVIACIONES
-9. CONCLUSIONES
-10. APROBACIONES`
-  };
+  const pd=PLANT_DATA[type];
+  const locFactor=LOC_FACTORS[loc]||1;
+  const finishFactor=finish==='premium'?1.25:1;
+  const nonClassified=area-classified;
 
-  const prompt=`${docPrompts[selectedDocType]}
+  // Base construction cost
+  const costClassified=classified*pd.classifiedRate*locFactor*finishFactor;
+  const costNonClassified=nonClassified*pd.baseRate*locFactor*finishFactor*0.5;
+  let totalConstruction=costClassified+costNonClassified;
 
-DATOS DEL PROYECTO:
-- Proyecto: ${project}
-- Cliente: ${client||'No especificado'}
-- Ubicación: ${location||'No especificada'}
-- Alcance: ${scope}
-${extra?'- Requisitos adicionales: '+extra:''}
-
-INSTRUCCIONES DE FORMATO:
-- Usa formato markdown con encabezados ##, ###
-- Incluye tablas donde sea apropiado
-- Sé específico con valores numéricos y referencias normativas
-- El documento debe ser profesional y listo para revisión
-- Incluye la sección y artículo cuando cites normativas
-- Extensión: documento completo y detallado (no resúmenes)`;
-
-  try{
-    const r=await callAPI('Eres GxP Agent, un consultor senior de ingeniería farmacéutica generando documentos técnicos profesionales. Genera documentos completos, detallados, con valores numéricos específicos y referencias normativas exactas. Usa formato markdown. El documento debe estar listo para revisión por un equipo de ingeniería.',[{role:'user',content:prompt}]);
-    lastDocContent=r;
-    body.innerHTML=md(r);
-  }catch(e){body.innerHTML=`<p style="color:var(--error)">⚠️ ${e.message}</p>`}
-  finally{btn.disabled=false;btn.textContent='📄 Generar documento'}
-}
-
-function downloadPDF(){
-  if(!lastDocContent)return;
-  const project=document.getElementById('doc-project').value||'Documento';
-  const client=document.getElementById('doc-client').value||'';
-  const location=document.getElementById('doc-location').value||'';
-  const date=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
-  const docTitle=selectedDocType?DOC_TITLES[selectedDocType]:'Documento Técnico';
-
-  // Create a temporary visible element for html2pdf
-  const container=document.createElement('div');
-  container.style.cssText='position:fixed;top:0;left:0;width:700px;background:#fff;z-index:9999;padding:40px;font-family:DM Sans,Arial,sans-serif;color:#1A2332;font-size:12px;line-height:1.6;overflow:visible;';
-  container.innerHTML=`
-    <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #003DA6">
-      <div style="font-size:24px;font-weight:800;color:#003DA6;margin-bottom:4px">GxP Agent</div>
-      <div style="font-size:18px;font-weight:700;color:#1A2332;margin-bottom:4px">${docTitle}</div>
-      <div style="font-size:12px;color:#5A6B7D">${project}${client?' — '+client:''}${location?' — '+location:''}</div>
-      <div style="font-size:11px;color:#8A97A8;margin-top:4px">${date}</div>
-    </div>
-    <div class="pdf-render">${md(lastDocContent)}</div>
-    <div style="margin-top:24px;padding-top:12px;border-top:1px solid #E2E8F0;font-size:10px;color:#8A97A8;text-align:center">
-      Generado por GxP Agent — ${date}<br>Este documento es un borrador generado por IA y debe ser revisado por un profesional cualificado antes de su uso.
-    </div>`;
-  document.body.appendChild(container);
-
-  const opt={
-    margin:[10,10,15,10],
-    filename:(project.replace(/[^a-zA-Z0-9áéíóúñÁÉÍÓÚÑ ]/g,'_').replace(/ /g,'_'))+'_GxPAgent.pdf',
-    image:{type:'jpeg',quality:0.98},
-    html2canvas:{scale:2,useCORS:true,scrollY:0,windowWidth:700},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-    pagebreak:{mode:['avoid-all','css','legacy']}
-  };
-
-  html2pdf().set(opt).from(container).save().then(()=>{
-    document.body.removeChild(container);
-  }).catch(()=>{
-    document.body.removeChild(container);
+  // Systems costs
+  const systems=[];
+  let systemsTotal=0;
+  document.querySelectorAll('.system-tag input:checked').forEach(cb=>{
+    const s=SYSTEM_COSTS[cb.value];
+    let cost=0;
+    if(s.pctBase)cost=totalConstruction*s.pctBase;
+    else if(s.fixed)cost=s.fixed*locFactor*finishFactor;
+    systems.push({key:cb.value,label:s.label,cost});
+    systemsTotal+=cost;
   });
+
+  const subtotalConstruction=totalConstruction;
+  const totalProject=totalConstruction+systemsTotal;
+  const contingency=totalProject*0.10;
+  const grandTotal=totalProject+contingency;
+
+  // Discipline breakdown
+  const disciplines=[
+    {label:'Obra civil / Estructura',pct:0.22,cost:grandTotal*0.22},
+    {label:'Acabados farmacéuticos (panelería)',pct:0.18,cost:grandTotal*0.18},
+    {label:'HVAC / Climatización',pct:0.16,cost:grandTotal*0.16},
+    {label:'Clean Utilities (agua, vapor)',pct:0.14,cost:grandTotal*0.14},
+    {label:'Electricidad e instrumentación',pct:0.13,cost:grandTotal*0.13},
+    {label:'Mecánicas (tuberías, sanitario)',pct:0.09,cost:grandTotal*0.09},
+    {label:'Control / BMS / Automatización',pct:0.04,cost:grandTotal*0.04},
+    {label:'Urbanización y exteriores',pct:0.04,cost:grandTotal*0.04},
+  ];
+
+  // Timeline
+  const baseMonths=pd.timeBase;
+  const areaFactor=area>5000?1.3:area>3000?1.15:area>1000?1:0.85;
+  const totalMonths=Math.round(baseMonths*areaFactor*(finish==='premium'?1.1:1));
+
+  // Engineering hours
+  const engHours=Math.round(area*pd.engHoursPerM2*locFactor);
+
+  // Cost per m2
+  const costPerM2=grandTotal/area;
+
+  // Format
+  const fmt=n=>n.toLocaleString('es-ES',{maximumFractionDigits:0});
+  const fmtUSD=n=>'USD '+fmt(n);
+
+  // Render results
+  let html=`
+    <div class="result-grid" style="margin-bottom:20px">
+      <div class="result-item highlight" style="grid-column:span 2">
+        <div class="result-item-label">Inversión total estimada (con contingencia 10%)</div>
+        <div><span class="result-item-value" style="font-size:28px">${fmtUSD(grandTotal)}</span></div>
+        <div class="result-item-note">Rango: ${fmtUSD(grandTotal*0.75)} — ${fmtUSD(grandTotal*1.25)} (±25% nivel anteproyecto)</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Coste por m² (total)</div>
+        <div><span class="result-item-value" style="font-size:22px">${fmt(costPerM2)}</span><span class="result-item-unit">USD/m²</span></div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Plazo total estimado</div>
+        <div><span class="result-item-value" style="font-size:22px">${totalMonths}</span><span class="result-item-unit">meses</span></div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Horas de ingeniería</div>
+        <div><span class="result-item-value" style="font-size:22px">${fmt(engHours)}</span><span class="result-item-unit">horas</span></div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Factor ubicación (${LOC_LABELS[loc]})</div>
+        <div><span class="result-item-value" style="font-size:22px">×${locFactor.toFixed(2)}</span></div>
+      </div>
+    </div>
+
+    <h4 style="color:var(--blue-dark);margin:20px 0 12px;font-size:14px">Desglose por disciplina</h4>
+    <table class="data-table" style="font-size:12px">
+      <thead><tr><th>Disciplina</th><th style="text-align:right">%</th><th style="text-align:right">Estimación USD</th></tr></thead>
+      <tbody>${disciplines.map(d=>`<tr><td>${d.label}</td><td style="text-align:right">${(d.pct*100).toFixed(0)}%</td><td style="text-align:right;font-weight:600">${fmtUSD(d.cost)}</td></tr>`).join('')}
+      <tr style="font-weight:700;background:var(--blue-pale)"><td>Total disciplinas</td><td></td><td style="text-align:right">${fmtUSD(grandTotal)}</td></tr></tbody>
+    </table>
+
+    <h4 style="color:var(--blue-dark);margin:20px 0 12px;font-size:14px">Desglose por fase del proyecto</h4>
+    <table class="data-table" style="font-size:12px">
+      <thead><tr><th>Fase</th><th style="text-align:right">% Inversión</th><th style="text-align:right">USD</th><th style="text-align:right">Duración</th></tr></thead>
+      <tbody>${Object.values(PHASES).map(p=>`<tr><td>${p.label}</td><td style="text-align:right">${(p.pct*100).toFixed(0)}%</td><td style="text-align:right">${fmtUSD(grandTotal*p.pct)}</td><td style="text-align:right">${Math.round(totalMonths*p.timePct)} meses</td></tr>`).join('')}
+      <tr style="font-weight:700;background:var(--blue-pale)"><td>Total</td><td style="text-align:right">100%</td><td style="text-align:right">${fmtUSD(grandTotal)}</td><td style="text-align:right">${totalMonths} meses</td></tr></tbody>
+    </table>
+
+    ${systems.length?`<h4 style="color:var(--blue-dark);margin:20px 0 12px;font-size:14px">Sistemas incluidos</h4>
+    <table class="data-table" style="font-size:12px">
+      <thead><tr><th>Sistema</th><th style="text-align:right">Estimación USD</th></tr></thead>
+      <tbody>${systems.map(s=>`<tr><td>${s.label}</td><td style="text-align:right">${fmtUSD(s.cost)}</td></tr>`).join('')}
+      <tr style="font-weight:700;background:var(--blue-pale)"><td>Total sistemas</td><td style="text-align:right">${fmtUSD(systemsTotal)}</td></tr></tbody>
+    </table>`:''}
+
+    <h4 style="color:var(--blue-dark);margin:20px 0 12px;font-size:14px">Curva de inversión por fase</h4>
+    <div style="display:flex;height:32px;border-radius:8px;overflow:hidden;margin-bottom:8px">
+      ${Object.values(PHASES).map((p,i)=>{const colors=['#003DA6','#1A5FBF','#40B4E5','#7ECEF0','#B2E0E6','#D5EFF5'];return `<div style="width:${p.pct*100}%;background:${colors[i]};display:flex;align-items:center;justify-content:center;font-size:10px;color:${i<3?'#fff':'#1A2332'};font-weight:600">${(p.pct*100).toFixed(0)}%</div>`}).join('')}
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text-muted)">
+      ${Object.values(PHASES).map((p,i)=>{const colors=['#003DA6','#1A5FBF','#40B4E5','#7ECEF0','#B2E0E6','#D5EFF5'];return `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:${colors[i]}"></span>${p.label}</span>`}).join('')}
+    </div>
+  `;
+
+  document.getElementById('est-result-body').innerHTML=html;
+  document.getElementById('est-result').classList.add('visible');
+
+  // AI Analysis
+  getEstimatorAI(type,area,classified,loc,finish,volume,product,grandTotal,totalMonths,engHours,costPerM2);
+}
+
+async function getEstimatorAI(type,area,classified,loc,finish,volume,product,total,months,hours,costM2){
+  const ai=document.getElementById('est-ai'),body=document.getElementById('est-ai-body');
+  ai.classList.add('visible');
+  body.innerHTML='<div class="loading-analysis"><div class="loading-spinner"></div>Generando análisis y recomendaciones...</div>';
+  const pd=PLANT_DATA[type];
+  const prompt=`Como consultor senior EPCM farmacéutico, analiza esta estimación de anteproyecto y da recomendaciones:
+
+PROYECTO:
+- Tipo: ${pd.label}
+- Producto: ${product||'No especificado'}
+- Volumen: ${volume||'No especificado'}
+- Superficie total: ${area} m² (zona clasificada: ${classified} m²)
+- Ubicación: ${LOC_LABELS[loc]}
+- Acabado: ${finish==='premium'?'Premium':'Estándar'}
+
+RESULTADO ESTIMACIÓN:
+- Inversión total: USD ${Math.round(total).toLocaleString()}
+- Coste/m²: USD ${Math.round(costM2).toLocaleString()}/m²
+- Plazo: ${months} meses
+- Horas ingeniería: ${hours.toLocaleString()}
+
+ANALIZA Y RECOMIENDA:
+1. ¿El ratio USD/m² es coherente para este tipo de planta en ${LOC_LABELS[loc]}?
+2. ¿El plazo es realista?
+3. ¿Qué riesgos principales ves en el proyecto?
+4. ¿Qué partidas pueden tener más desviación?
+5. ¿Recomendaciones para optimizar costes?
+6. ¿Ratio zona clasificada vs total es adecuado?
+
+Sé breve y directo. Usa ✅ para lo que está bien y ⚠️ para alertas.`;
+
+  try{const r=await callAPI('Eres GxP Agent, consultor senior EPCM farmacéutico. Analiza estimaciones de anteproyecto con ojo crítico. Referencia benchmarks de la industria (ISPE, PM Group). Sé conciso.',[{role:'user',content:prompt}]);body.innerHTML=md(r)}
+  catch(e){body.innerHTML=`<p style="color:var(--error)">⚠️ ${e.message}</p>`}
+}
+
+/* ==================== CLASSIFICATIONS TABLE ==================== */
+const CLASSIF_DATA=[
+  {grade:'A',isoRest:'ISO 5',isoOp:'ISO 5',p05Rest:'3,520',p5Rest:'20',p05Op:'3,520',p5Op:'20',
+   ach:'≥0.36 m/s (unidireccional)',flow:'Unidireccional (laminar)',temp:'20°C ± 2°C',hr:'45% ± 5%',dp:'≥15 Pa vs Grado B',monitoring:'Continuo (partículas, ΔP, T, HR)',
+   floor:'Epoxi autonivelante sin juntas',walls:'Acero inox 316L o panel flush',ceiling:'Acero inox 316L o panel flush',coving:'Obligatoria (radio ≥25mm)',ra:'≤ 0.8 μm',
+   desc:'Zona de máxima criticidad. Punto de llenado, cierre de viales, conexiones asépticas. Requiere flujo unidireccional (laminar) con velocidad 0.36-0.54 m/s (EU GMP Annex 1 §4.30). Monitorización continua de partículas en operación. Todas las superficies deben ser lisas, impermeables, sin grietas, con curvas sanitarias. Típicamente dentro de isolator o RABS, o bajo flujo laminar dentro de zona Grado B.'},
+  {grade:'B',isoRest:'ISO 5',isoOp:'ISO 7',p05Rest:'3,520',p5Rest:'20',p05Op:'352,000',p5Op:'2,900',
+   ach:'40-60 ACH',flow:'Turbulento',temp:'20°C ± 2°C',hr:'45% ± 5%',dp:'≥15 Pa vs Grado C',monitoring:'Continuo (partículas, ΔP, T, HR)',
+   floor:'Epoxi autonivelante sin juntas',walls:'Panel sandwich HPL flush o acero inox',ceiling:'Panel sandwich flush (walkable recomendado)',coving:'Obligatoria (radio ≥25mm)',ra:'≤ 0.8 μm',
+   desc:'Entorno de la zona Grado A para preparación y llenado aséptico. Alta renovación de aire turbulento (≥40 ACH según ISPE). Clasificación ISO 5 en reposo, ISO 7 en operación. Monitorización continua. Acabados flush, sin salientes, todos lavables y resistentes a desinfectantes. Vestimenta estéril completa requerida.'},
+  {grade:'C',isoRest:'ISO 7',isoOp:'ISO 8',p05Rest:'352,000',p5Rest:'2,900',p05Op:'3,520,000',p5Op:'29,000',
+   ach:'20-40 ACH',flow:'Turbulento',temp:'20-22°C ± 2°C',hr:'45-55% ± 10%',dp:'≥10 Pa vs Grado D',monitoring:'Periódico + ΔP continuo',
+   floor:'Epoxi autonivelante',walls:'Panel sandwich HPL',ceiling:'Panel sandwich',coving:'Recomendada',ra:'≤ 1.2 μm',
+   desc:'Zona para etapas menos críticas de fabricación estéril: preparación de soluciones, manipulación de componentes pre-esterilización. También usada en fabricación de formas orales que lo requieran. 20-40 ACH típico. Monitorización periódica de partículas, continua de ΔP. Acabados lisos y lavables pero menos exigentes que Grado B.'},
+  {grade:'D',isoRest:'ISO 8',isoOp:'No definido',p05Rest:'3,520,000',p5Rest:'29,000',p05Op:'No definido',p5Op:'No definido',
+   ach:'10-20 ACH',flow:'Turbulento',temp:'20-22°C ± 3°C',hr:'30-65%',dp:'≥10 Pa vs CNC',monitoring:'Periódico',
+   floor:'Epoxi o vinilo soldado',walls:'Panel sandwich o pintura epoxi',ceiling:'Panel sandwich o falso techo sellado',coving:'Recomendada',ra:'≤ 1.6 μm',
+   desc:'Zona para etapas menos críticas: lavado de material, almacenamiento de componentes, fabricación de formas sólidas orales. ISO 8 en reposo; no se definen límites en operación en EU GMP. 10-20 ACH. Presión positiva respecto a zonas no clasificadas. Acabados lavables y resistentes. La clasificación en operación depende de la naturaleza de las operaciones realizadas.'}
+];
+
+let currentView='particles';
+
+function renderClassifTables(filter='all'){
+  const data=filter==='all'?CLASSIF_DATA:CLASSIF_DATA.filter(d=>d.grade===filter);
+  
+  // Particles
+  document.getElementById('classif-body-particles').innerHTML=data.map(d=>`
+    <tr style="cursor:pointer" onclick="showClassifDetail('${d.grade}')">
+      <td style="font-weight:700;color:var(--blue-dark);font-size:15px">Grado ${d.grade}</td>
+      <td>${d.isoRest}</td><td>${d.isoOp}</td>
+      <td>${d.p05Rest}</td><td>${d.p5Rest}</td>
+      <td>${d.p05Op}</td><td>${d.p5Op}</td>
+    </tr>`).join('');
+  
+  // Conditions
+  document.getElementById('classif-body-conditions').innerHTML=data.map(d=>`
+    <tr style="cursor:pointer" onclick="showClassifDetail('${d.grade}')">
+      <td style="font-weight:700;color:var(--blue-dark);font-size:15px">Grado ${d.grade}</td>
+      <td>${d.ach}</td><td>${d.flow}</td>
+      <td>${d.temp}</td><td>${d.hr}</td>
+      <td>${d.dp}</td><td>${d.monitoring}</td>
+    </tr>`).join('');
+  
+  // Finishes
+  document.getElementById('classif-body-finishes').innerHTML=data.map(d=>`
+    <tr style="cursor:pointer" onclick="showClassifDetail('${d.grade}')">
+      <td style="font-weight:700;color:var(--blue-dark);font-size:15px">Grado ${d.grade}</td>
+      <td>${d.floor}</td><td>${d.walls}</td>
+      <td>${d.ceiling}</td><td>${d.coving}</td><td>${d.ra}</td>
+    </tr>`).join('');
+}
+
+function filterClassif(){renderClassifTables(document.getElementById('classif-filter').value)}
+
+function toggleView(view){
+  currentView=view;
+  ['particles','conditions','finishes'].forEach(v=>{
+    document.getElementById('view-'+v+'-table').style.display=v===view?'block':'none';
+    const btn=document.getElementById('view-'+v);
+    if(v===view){btn.style.background='var(--blue-pale)';btn.style.borderColor='var(--border-blue)';btn.style.color='var(--blue-dark)'}
+    else{btn.style.background='';btn.style.borderColor='';btn.style.color=''}
+  });
+}
+
+function showClassifDetail(grade){
+  const d=CLASSIF_DATA.find(x=>x.grade===grade);if(!d)return;
+  const el=document.getElementById('classif-detail');
+  el.classList.add('visible');
+  document.getElementById('classif-detail-title').innerHTML=`🔬 Grado ${d.grade} — Detalle completo`;
+  document.getElementById('classif-detail-body').innerHTML=`
+    <div style="margin-bottom:16px;font-size:14px;line-height:1.7;color:var(--text-secondary)">${d.desc}</div>
+    <div class="result-grid">
+      <div class="result-item highlight">
+        <div class="result-item-label">Clasificación ISO (reposo)</div>
+        <div class="result-item-value" style="font-size:20px">${d.isoRest}</div>
+      </div>
+      <div class="result-item highlight">
+        <div class="result-item-label">Clasificación ISO (operación)</div>
+        <div class="result-item-value" style="font-size:20px">${d.isoOp}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Renovaciones de aire</div>
+        <div class="result-item-value" style="font-size:16px">${d.ach}</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">Diferencial de presión</div>
+        <div class="result-item-value" style="font-size:16px">${d.dp}</div>
+      </div>
+    </div>
+    <table class="data-table" style="margin-top:16px">
+      <tr><th style="width:40%;background:var(--blue-dark);color:#fff">Parámetro</th><th style="background:var(--blue-dark);color:#fff">Especificación</th></tr>
+      <tr><td><strong>Partículas ≥0.5μm (reposo)</strong></td><td>${d.p05Rest} /m³</td></tr>
+      <tr><td><strong>Partículas ≥5μm (reposo)</strong></td><td>${d.p5Rest} /m³</td></tr>
+      <tr><td><strong>Partículas ≥0.5μm (operación)</strong></td><td>${d.p05Op} /m³</td></tr>
+      <tr><td><strong>Partículas ≥5μm (operación)</strong></td><td>${d.p5Op} /m³</td></tr>
+      <tr><td><strong>Temperatura</strong></td><td>${d.temp}</td></tr>
+      <tr><td><strong>Humedad relativa</strong></td><td>${d.hr}</td></tr>
+      <tr><td><strong>Tipo de flujo</strong></td><td>${d.flow}</td></tr>
+      <tr><td><strong>Monitorización</strong></td><td>${d.monitoring}</td></tr>
+      <tr><td><strong>Suelo</strong></td><td>${d.floor}</td></tr>
+      <tr><td><strong>Paredes</strong></td><td>${d.walls}</td></tr>
+      <tr><td><strong>Techo</strong></td><td>${d.ceiling}</td></tr>
+      <tr><td><strong>Curva sanitaria</strong></td><td>${d.coving}</td></tr>
+      <tr><td><strong>Rugosidad superficial (Ra)</strong></td><td>${d.ra}</td></tr>
+    </table>`;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ==================== INIT ==================== */
 document.addEventListener('DOMContentLoaded',()=>{
-  // Upload drag drop
   const z=document.getElementById('uploadZone');
   if(z){z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')});z.addEventListener('dragleave',()=>z.classList.remove('dragover'));z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files[0])})}
-  // Analyze options
   document.querySelectorAll('.analyze-opt').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.analyze-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const cs=document.getElementById('custom-prompt-section');if(cs)cs.style.display=btn.dataset.type==='custom'?'block':'none'})});
+  renderClassifTables();
+  toggleView('particles');
   document.getElementById('userInput').focus();
 });
 </script>
